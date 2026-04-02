@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-labelledby="t d">
+  <title id="t">Intense Hair Mask</title>
+  <desc id="d">Hair mask jar on soft peach gradient background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff1f2"/>
+      <stop offset="100%" stop-color="#ffe4d6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" fill="url(#bg)"/>
+  <ellipse cx="400" cy="410" rx="180" ry="54" fill="#fda4af" opacity="0.35"/>
+  <rect x="250" y="220" width="300" height="170" rx="34" fill="#fff"/>
+  <rect x="280" y="170" width="240" height="70" rx="20" fill="#fb7185"/>
+  <text x="400" y="315" text-anchor="middle" font-size="36" font-family="Arial" font-weight="700" fill="#be123c">MASK</text>
+  <text x="400" y="495" text-anchor="middle" font-size="34" font-family="Arial" font-weight="700" fill="#9f1239">Hair Care</text>
+</svg>

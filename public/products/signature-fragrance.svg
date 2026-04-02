@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-labelledby="t d">
+  <title id="t">Signature Fragrance</title>
+  <desc id="d">Perfume bottle with luxurious tones.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fef2f2"/>
+      <stop offset="100%" stop-color="#fee2e2"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" fill="url(#bg)"/>
+  <rect x="290" y="140" width="220" height="270" rx="44" fill="#fff"/>
+  <rect x="350" y="100" width="100" height="55" rx="14" fill="#fb7185"/>
+  <circle cx="400" cy="280" r="62" fill="#f43f5e" opacity="0.2"/>
+  <text x="400" y="292" text-anchor="middle" font-size="28" font-family="Arial" font-weight="700" fill="#9f1239">EAU</text>
+  <text x="400" y="500" text-anchor="middle" font-size="32" font-family="Arial" font-weight="700" fill="#9f1239">Fragrance</text>
+</svg>

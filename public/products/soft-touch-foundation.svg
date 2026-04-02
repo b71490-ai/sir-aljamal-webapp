@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-labelledby="t d">
+  <title id="t">Soft Touch Foundation</title>
+  <desc id="d">Foundation tube illustration on neutral background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="100%" stop-color="#fef3c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" fill="url(#bg)"/>
+  <rect x="330" y="90" width="140" height="360" rx="26" fill="#fff"/>
+  <rect x="330" y="350" width="140" height="100" rx="14" fill="#d6b08c"/>
+  <circle cx="400" cy="250" r="50" fill="#f59e0b" opacity="0.24"/>
+  <text x="400" y="262" text-anchor="middle" font-size="30" font-family="Arial" font-weight="700" fill="#78350f">F</text>
+  <text x="400" y="500" text-anchor="middle" font-size="32" font-family="Arial" font-weight="700" fill="#78350f">Foundation</text>
+</svg>

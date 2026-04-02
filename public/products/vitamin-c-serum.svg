@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-labelledby="t d">
+  <title id="t">Vitamin C Serum</title>
+  <desc id="d">Serum product illustration on warm gradient background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" fill="url(#bg)"/>
+  <rect x="315" y="120" width="170" height="320" rx="26" fill="#f97316" opacity="0.16"/>
+  <rect x="330" y="100" width="140" height="330" rx="22" fill="#fff"/>
+  <rect x="360" y="70" width="80" height="42" rx="8" fill="#fb923c"/>
+  <rect x="352" y="195" width="96" height="90" rx="12" fill="#fdba74"/>
+  <text x="400" y="245" text-anchor="middle" font-size="34" font-family="Arial" font-weight="700" fill="#9a3412">C</text>
+  <text x="400" y="495" text-anchor="middle" font-size="34" font-family="Arial" font-weight="700" fill="#7c2d12">Vitamin C</text>
+</svg>

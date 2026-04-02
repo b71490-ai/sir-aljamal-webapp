@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: sir-aljamal-webapp
+    runtime: node
+    plan: starter
+    branch: main
+    rootDir: webapp
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_DB_PATH
+        value: /var/data/admin-db.json
+    disks:
+      - name: sir-aljamal-data
+        mountPath: /var/data
+        sizeGB: 1
