@@ -17,6 +17,7 @@ const FALLBACK_SETTINGS: DashboardSettings = {
   walletName: "المحفظة الرئيسية",
   walletAccountNumber: "777123456",
   paymentMethods: [],
+  adminUsers: [],
 };
 
 export function useDashboardSettingsLive(initialSettings?: Partial<DashboardSettings>) {

@@ -81,6 +81,16 @@ type ServerPaymentMethod = {
   isEnabled: boolean;
 };
 
+type ServerAdminUser = {
+  id: string;
+  name: string;
+  username: string;
+  pin: string;
+  role: "owner" | "staff" | "support";
+  isEnabled: boolean;
+  lastLoginAt?: string;
+};
+
 type ServerAdminLead = {
   id: string;
   ticketNumber: string;
@@ -119,6 +129,7 @@ type ServerDashboardSettings = {
   walletName: string;
   walletAccountNumber: string;
   paymentMethods: ServerPaymentMethod[];
+  adminUsers: ServerAdminUser[];
 };
 
 export type ServerAdminState = {
@@ -286,6 +297,32 @@ function defaultState(): ServerAdminState {
           accountName: "متجر سر الجمال",
           accountNumber: "780123456",
           instructions: "حوّلي المبلغ عبر تطبيق فلوسك ثم اكتبي اسم المحوّل ورقم المرجع لتأكيد الطلب.",
+          isEnabled: true,
+        },
+      ],
+      adminUsers: [
+        {
+          id: "user-owner",
+          name: "المالك",
+          username: "owner",
+          pin: "1234",
+          role: "owner",
+          isEnabled: true,
+        },
+        {
+          id: "user-staff",
+          name: "موظف",
+          username: "staff",
+          pin: "1234",
+          role: "staff",
+          isEnabled: true,
+        },
+        {
+          id: "user-support",
+          name: "الدعم",
+          username: "support",
+          pin: "1234",
+          role: "support",
           isEnabled: true,
         },
       ],

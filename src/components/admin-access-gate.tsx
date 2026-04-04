@@ -7,6 +7,7 @@ import { normalizeToEnglishDigits } from "@/lib/digits";
 type AdminRole = "owner" | "staff" | "support";
 
 export default function AdminAccessGate() {
+  const [username, setUsername] = useState("staff");
   const [pin, setPin] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [error, setError] = useState("");
@@ -52,7 +53,7 @@ export default function AdminAccessGate() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ pin: pin.trim(), role }),
+        body: JSON.stringify({ username: username.trim(), pin: pin.trim(), role }),
       });
 
       if (!response.ok) {
@@ -94,6 +95,13 @@ export default function AdminAccessGate() {
           بعد الدخول استخدمي زر مزامنة من السيرفر لتحميل آخر البيانات المشتركة بين الأجهزة.
         </p>
         <div className="mt-3 flex w-full max-w-md flex-col gap-2">
+          <input
+            className="form-input"
+            type="text"
+            placeholder="اسم المستخدم"
+            value={username}
+            onChange={(event) => setUsername(event.target.value.toLowerCase())}
+          />
           <select
             className="form-input"
             value={role}

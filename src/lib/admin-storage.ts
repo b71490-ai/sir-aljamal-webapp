@@ -55,6 +55,16 @@ export type AdminPaymentMethod = {
   isEnabled: boolean;
 };
 
+export type AdminUserAccount = {
+  id: string;
+  name: string;
+  username: string;
+  pin: string;
+  role: AdminRole;
+  isEnabled: boolean;
+  lastLoginAt?: string;
+};
+
 export type AdminOrder = {
   id: string;
   createdAt: string;
@@ -114,6 +124,7 @@ export type DashboardSettings = {
   walletName: string;
   walletAccountNumber: string;
   paymentMethods: AdminPaymentMethod[];
+  adminUsers: AdminUserAccount[];
 };
 
 export type DashboardInsights = {
@@ -196,7 +207,85 @@ const DEFAULT_SETTINGS: DashboardSettings = {
       isEnabled: true,
     },
   ],
+  adminUsers: [
+    {
+      id: "user-owner",
+      name: "المالك",
+      username: "owner",
+      pin: "1234",
+      role: "owner",
+      isEnabled: true,
+    },
+    {
+      id: "user-staff",
+      name: "موظف",
+      username: "staff",
+      pin: "1234",
+      role: "staff",
+      isEnabled: true,
+    },
+    {
+      id: "user-support",
+      name: "الدعم",
+      username: "support",
+      pin: "1234",
+      role: "support",
+      isEnabled: true,
+    },
+  ],
 };
+
+function sanitizeRole(value: unknown): AdminRole {
+  if (value === "owner" || value === "staff" || value === "support") {
+    return value;
+  }
+  return "staff";
+}
+
+function sanitizeAdminUsers(users: AdminUserAccount[] | undefined): AdminUserAccount[] {
+  const fallback = DEFAULT_SETTINGS.adminUsers;
+  if (!Array.isArray(users) || users.length === 0) {
+    return fallback;
+  }
+
+  const normalized = users
+    .map((user, index) => {
+      const role = sanitizeRole(user.role);
+      const fallbackUser = fallback[index] || fallback[1] || fallback[0];
+      const username = String(user.username || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9._-]/g, "")
+        .trim();
+      const pin = String(user.pin || "")
+        .replace(/\D/g, "")
+        .slice(0, 32);
+
+      return {
+        id: String(user.id || fallbackUser.id || `user-${Date.now()}-${index}`),
+        name: String(user.name || fallbackUser.name || "مستخدم").trim() || "مستخدم",
+        username: username || String(fallbackUser.username || `user${index + 1}`),
+        pin: pin.length >= 4 ? pin : String(fallbackUser.pin || DEFAULT_SETTINGS.adminPin),
+        role,
+        isEnabled: user.isEnabled !== false,
+        lastLoginAt: user.lastLoginAt ? String(user.lastLoginAt) : undefined,
+      };
+    })
+    .slice(0, 30)
+    .filter((user, index, arr) => arr.findIndex((item) => item.username === user.username) === index);
+
+  const hasEnabledOwner = normalized.some((user) => user.role === "owner" && user.isEnabled);
+  if (!hasEnabledOwner) {
+    const ownerFallback = fallback[0];
+    normalized.unshift({
+      ...ownerFallback,
+      id: ownerFallback.id || `user-owner-${Date.now()}`,
+      isEnabled: true,
+      lastLoginAt: ownerFallback.lastLoginAt || undefined,
+    });
+  }
+
+  return normalized;
+}
 
 function sanitizePaymentMethods(methods: AdminPaymentMethod[] | undefined): AdminPaymentMethod[] {
   const fallback = DEFAULT_SETTINGS.paymentMethods;
@@ -640,6 +729,7 @@ export function getDashboardSettings(): DashboardSettings {
     walletName: String(settings.walletName || DEFAULT_SETTINGS.walletName).trim() || DEFAULT_SETTINGS.walletName,
     walletAccountNumber: String(settings.walletAccountNumber || DEFAULT_SETTINGS.walletAccountNumber).trim() || DEFAULT_SETTINGS.walletAccountNumber,
     paymentMethods: sanitizePaymentMethods(settings.paymentMethods),
+    adminUsers: sanitizeAdminUsers(settings.adminUsers),
   };
 }
 
@@ -679,6 +769,7 @@ export function saveDashboardSettings(settings: DashboardSettings) {
     walletName,
     walletAccountNumber,
     paymentMethods,
+    adminUsers: sanitizeAdminUsers(settings.adminUsers),
   };
   writeStorage(STORAGE_KEYS.settings, normalized);
 }

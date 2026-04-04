@@ -10,6 +10,16 @@ const paymentMethodSchema = z.object({
   isEnabled: z.boolean(),
 });
 
+const adminUserSchema = z.object({
+  id: z.string().min(1).max(120),
+  name: z.string().min(1).max(120),
+  username: z.string().min(2).max(80),
+  pin: z.string().min(4).max(32),
+  role: z.enum(["owner", "staff", "support"]),
+  isEnabled: z.boolean(),
+  lastLoginAt: z.string().max(80).optional(),
+});
+
 export const settingsPatchSchema = z.object({
   whatsappNumber: z.string().max(30).optional(),
   supportEmail: z.string().email().max(160).optional(),
@@ -24,6 +34,7 @@ export const settingsPatchSchema = z.object({
   walletName: z.string().max(120).optional(),
   walletAccountNumber: z.string().max(80).optional(),
   paymentMethods: z.array(paymentMethodSchema).max(20).optional(),
+  adminUsers: z.array(adminUserSchema).max(30).optional(),
 }).strict();
 
 const snapshotListSchema = z.array(z.record(z.string(), z.unknown())).max(10000);

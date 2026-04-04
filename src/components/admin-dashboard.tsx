@@ -22,6 +22,7 @@ import {
   updateAdminOrderPaymentStatus,
   updateAdminLeadStatus,
   updateAdminOrderStatus,
+  type AdminUserAccount,
   type AdminOrderPaymentStatus,
   type AdminPaymentMethod,
   type AdminOffer,
@@ -184,6 +185,10 @@ function splitImageInputs(raw: string) {
 
 function normalizeDigits(value: string) {
   return normalizeToEnglishDigits(value);
+}
+
+function sanitizeUsername(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9._-]/g, "");
 }
 
 function readFileAsDataUrl(file: File) {
@@ -874,6 +879,52 @@ export default function AdminDashboard({ role }: AdminDashboardProps) {
       ...prev,
       paymentMethods: prev.paymentMethods.filter((method) => method.id !== methodId),
     }));
+  }
+
+  function addAdminUser() {
+    setSettings((prev) => ({
+      ...prev,
+      adminUsers: [
+        ...prev.adminUsers,
+        {
+          id: `user-${Date.now()}`,
+          name: "مستخدم جديد",
+          username: `user${prev.adminUsers.length + 1}`,
+          pin: "1234",
+          role: "staff",
+          isEnabled: true,
+        },
+      ],
+    }));
+  }
+
+  function updateAdminUser(userId: string, updater: (user: AdminUserAccount) => AdminUserAccount) {
+    setSettings((prev) => ({
+      ...prev,
+      adminUsers: prev.adminUsers.map((user) => (user.id === userId ? updater(user) : user)),
+    }));
+  }
+
+  function removeAdminUser(userId: string) {
+    setSettings((prev) => {
+      const target = prev.adminUsers.find((user) => user.id === userId);
+      if (!target) {
+        return prev;
+      }
+
+      const remaining = prev.adminUsers.filter((user) => user.id !== userId);
+      const hasEnabledOwner = remaining.some((user) => user.role === "owner" && user.isEnabled);
+      if (!hasEnabledOwner) {
+        setNotice("يجب الإبقاء على مالك واحد مفعّل على الأقل.");
+        window.setTimeout(() => setNotice(""), 1800);
+        return prev;
+      }
+
+      return {
+        ...prev,
+        adminUsers: remaining,
+      };
+    });
   }
 
   async function handleSaveSettings() {
@@ -2024,6 +2075,91 @@ export default function AdminDashboard({ role }: AdminDashboardProps) {
                     </label>
                     <button className="hero-btn hero-btn--secondary" type="button" onClick={() => removePaymentMethod(method.id)}>
                       حذف الوسيلة
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="admin-field lg:col-span-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span>إدارة المستخدمين</span>
+              <button className="hero-btn hero-btn--secondary" type="button" onClick={addAdminUser}>
+                إضافة مستخدم
+              </button>
+            </div>
+            <div className="mt-3 grid gap-3">
+              {settings.adminUsers.map((user) => (
+                <article key={user.id} className="rounded-2xl border border-zinc-200 bg-white p-3">
+                  <div className="grid gap-2 md:grid-cols-2">
+                    <input
+                      className="form-input"
+                      type="text"
+                      value={user.name}
+                      placeholder="الاسم"
+                      onChange={(event) =>
+                        updateAdminUser(user.id, (current) => ({
+                          ...current,
+                          name: event.target.value,
+                        }))
+                      }
+                    />
+                    <input
+                      className="form-input"
+                      type="text"
+                      value={user.username}
+                      placeholder="username"
+                      onChange={(event) =>
+                        updateAdminUser(user.id, (current) => ({
+                          ...current,
+                          username: sanitizeUsername(event.target.value),
+                        }))
+                      }
+                    />
+                    <input
+                      className="form-input"
+                      type="text"
+                      value={user.pin}
+                      placeholder="رمز الدخول"
+                      onChange={(event) =>
+                        updateAdminUser(user.id, (current) => ({
+                          ...current,
+                          pin: normalizeDigits(event.target.value).replace(/\D/g, ""),
+                        }))
+                      }
+                    />
+                    <select
+                      className="form-input"
+                      value={user.role}
+                      onChange={(event) =>
+                        updateAdminUser(user.id, (current) => ({
+                          ...current,
+                          role: event.target.value as AdminUserAccount["role"],
+                        }))
+                      }
+                    >
+                      <option value="owner">مالك</option>
+                      <option value="staff">موظف</option>
+                      <option value="support">دعم</option>
+                    </select>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <label className="admin-switch admin-switch--block">
+                      <input
+                        type="checkbox"
+                        checked={user.isEnabled}
+                        onChange={(event) =>
+                          updateAdminUser(user.id, (current) => ({
+                            ...current,
+                            isEnabled: event.target.checked,
+                          }))
+                        }
+                      />
+                      <span>{user.isEnabled ? "مفعّل" : "موقوف"}</span>
+                    </label>
+                    <button className="hero-btn hero-btn--secondary" type="button" onClick={() => removeAdminUser(user.id)}>
+                      حذف المستخدم
                     </button>
                   </div>
                 </article>

@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import {
   getAdminSessionCookieName,
   readAdminSessionRole,
-  verifyAdminSessionToken,
+  readAdminSessionRoleByPins,
+  verifyAdminSessionTokenByPins,
   type AdminSessionRole,
 } from "@/lib/admin-auth";
 import {
@@ -44,12 +45,31 @@ function canUpdateSection(role: AdminSessionRole, section: "products" | "offers"
   return section === "orders" || section === "leads" || section === "auditLogs";
 }
 
+function collectAdminPins(settings: { adminPin: string; adminUsers?: unknown }) {
+  const pins = new Set<string>();
+  pins.add(settings.adminPin);
+
+  const users = Array.isArray(settings.adminUsers) ? settings.adminUsers : [];
+  for (const user of users) {
+    if (!user || typeof user !== "object") {
+      continue;
+    }
+    const pin = String((user as Record<string, unknown>).pin || "").replace(/\D/g, "").trim();
+    if (pin.length >= 4) {
+      pins.add(pin);
+    }
+  }
+
+  return [...pins];
+}
+
 export async function GET() {
   const state = await readServerAdminState();
   const cookieStore = await cookies();
   const token = cookieStore.get(getAdminSessionCookieName())?.value;
+  const pins = collectAdminPins(state.settings);
 
-  if (!verifyAdminSessionToken(token, state.settings.adminPin)) {
+  if (!verifyAdminSessionTokenByPins(token, pins)) {
     return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
   }
 
@@ -66,9 +86,10 @@ export async function PUT(request: Request) {
     const payload = parsedPayload.data;
     const previous = await readServerAdminState();
     const token = cookieStore.get(getAdminSessionCookieName())?.value;
-    const role = readAdminSessionRole(token, previous.settings.adminPin);
+    const pins = collectAdminPins(previous.settings);
+    const role = readAdminSessionRoleByPins(token, pins) || readAdminSessionRole(token, previous.settings.adminPin);
 
-    if (!verifyAdminSessionToken(token, previous.settings.adminPin) || !role) {
+    if (!verifyAdminSessionTokenByPins(token, pins) || !role) {
       return NextResponse.json({ ok: false, message: "Unauthorized" }, { status: 401 });
     }
 
