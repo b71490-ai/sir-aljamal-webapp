@@ -18,7 +18,7 @@ type AdItem = {
 
 const AUTO_PLAY_MS = 4500;
 
-const TONES = ["from-orange-500 to-rose-500", "from-rose-500 to-fuchsia-500", "from-amber-500 to-orange-500"];
+const TONES = ["from-stone-950 via-amber-900 to-stone-800", "from-[#4d3026] via-[#7a5630] to-[#221814]", "from-[#522a2a] via-[#7b4a33] to-[#2a1d16]"];
 
 function formatLeft(seconds: number) {
   const h = Math.floor(seconds / 3600);
@@ -44,9 +44,9 @@ export default function AdsSlider() {
       badge: offer.badge,
       title: offer.title,
       subtitle: offer.details,
-      metaOne: offer.couponCode ? `كود ${offer.couponCode}` : "تطبيق تلقائي",
+      metaOne: offer.couponCode ? `كود ${offer.couponCode}` : "عرض بوتيك",
       metaTwo: `ينتهي خلال ${formatLeft(getSecondsLeft(offer.expiresAt, now))}`,
-      cta: "شاهد التفاصيل",
+      cta: "ادخلي إلى العرض",
       href: offer.href,
       tone: TONES[index % TONES.length],
     }));
@@ -122,8 +122,8 @@ export default function AdsSlider() {
           <article className="ad-slider__slide">
             <div className="ad-slider__card bg-gradient-to-l from-zinc-700 to-zinc-500">
               <span className="ad-slider__badge">لا توجد عروض نشطة حاليًا</span>
-              <h2 className="ad-slider__title">سيتم تحديث العروض قريبًا</h2>
-              <p className="ad-slider__subtitle">تابعي صفحة العروض لمعرفة آخر التحديثات.</p>
+              <h2 className="ad-slider__title">سيتم تجديد رف العروض قريبًا</h2>
+              <p className="ad-slider__subtitle">تابعي صفحة العروض لمعرفة أحدث مختارات الدار.</p>
               <div className="ad-slider__actions">
                 <Link className="ad-slider__cta" href="/offers">
                   صفحة العروض
@@ -149,7 +149,7 @@ export default function AdsSlider() {
                     {ad.cta}
                   </Link>
                   <Link className="ad-slider__cta ad-slider__cta--ghost" href="/store">
-                    كل المنتجات
+                    رف العطور
                   </Link>
                 </div>
               </div>

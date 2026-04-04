@@ -70,3 +70,28 @@ Persistent Disk:
 - Size: `1 GB` (or more as needed)
 
 After first deploy, open `/admin`, log in with your admin PIN, then use sync buttons if needed.
+
+## Supabase Setup (Optional, Recommended)
+
+This project can store admin state in Supabase with automatic fallback to local JSON if Supabase is not configured.
+
+### 1) Create Table in Supabase
+
+Run SQL from:
+
+- `supabase/admin_state.sql`
+
+### 2) Add Environment Variables
+
+Copy `.env.example` and set:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ADMIN_STATE_TABLE` (default: `admin_state`)
+
+### 3) Verify from Admin Dashboard
+
+Open `/admin` and click **فحص التخزين**.
+
+- If Supabase is healthy: status shows `Supabase` mode.
+- Otherwise: app automatically uses local JSON storage.

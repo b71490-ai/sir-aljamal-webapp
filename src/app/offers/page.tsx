@@ -23,6 +23,7 @@ export default function OffersPage() {
 
   const offers = useMemo(() => getActiveOffers(now), [now]);
   const nearestExpiry = offers[0]?.expiresAt;
+  const activeCoupons = offers.filter((offer) => offer.couponCode).map((offer) => offer.couponCode);
 
   return (
     <main className="inner-page site-shell" dir="rtl">
@@ -104,7 +105,7 @@ export default function OffersPage() {
         <h2 className="text-lg font-black text-zinc-900">كيف يطبق العرض تلقائيًا؟</h2>
         <p className="mt-2 text-sm text-zinc-700">
           عند إضافة المنتجات للسلة والانتقال إلى صفحة الدفع، يتم فحص الشروط (الفئة، الحد الأدنى، الشحن المجاني)
-          وتطبيق أفضل عرض تلقائيًا. الكوبونات مثل GLOW10 يمكن إدخالها يدويًا لخصم إضافي عند استيفاء الشروط.
+          وتطبيق أفضل عرض تلقائيًا. {activeCoupons.length > 0 ? `الكوبونات النشطة حاليًا: ${activeCoupons.join(" - ")}.` : "لا توجد كوبونات مفعلة حاليًا."}
         </p>
       </section>
     </main>

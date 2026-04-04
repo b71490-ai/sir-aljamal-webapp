@@ -6,6 +6,7 @@ export type Product = {
   category: ProductCategory;
   categoryLabel: string;
   imagePath: string;
+  imageGallery: string[];
   imageAlt: string;
   price: number;
   badge: string;
@@ -28,6 +29,11 @@ export const PRODUCTS: Product[] = [
     category: "skin-care",
     categoryLabel: CATEGORY_LABELS["skin-care"],
     imagePath: "/products/vitamin-c-serum.svg",
+    imageGallery: [
+      "/products/vitamin-c-serum.svg",
+      "/products/intense-hair-mask.svg",
+      "/products/daily-bright-cream.svg",
+    ],
     imageAlt: "عبوة سيروم فيتامين سي للعناية بالبشرة",
     price: 129,
     badge: "الأكثر مبيعًا",
@@ -45,6 +51,11 @@ export const PRODUCTS: Product[] = [
     category: "hair-care",
     categoryLabel: CATEGORY_LABELS["hair-care"],
     imagePath: "/products/intense-hair-mask.svg",
+    imageGallery: [
+      "/products/intense-hair-mask.svg",
+      "/products/repair-hair-oil.svg",
+      "/products/vitamin-c-serum.svg",
+    ],
     imageAlt: "عبوة ماسك ترطيب للشعر",
     price: 89,
     badge: "عرض اليوم",
@@ -62,6 +73,11 @@ export const PRODUCTS: Product[] = [
     category: "makeup",
     categoryLabel: CATEGORY_LABELS.makeup,
     imagePath: "/products/soft-touch-foundation.svg",
+    imageGallery: [
+      "/products/soft-touch-foundation.svg",
+      "/products/signature-fragrance.svg",
+      "/products/daily-bright-cream.svg",
+    ],
     imageAlt: "عبوة فاونديشن للمكياج اليومي",
     price: 149,
     badge: "جديد",
@@ -79,6 +95,11 @@ export const PRODUCTS: Product[] = [
     category: "fragrance",
     categoryLabel: CATEGORY_LABELS.fragrance,
     imagePath: "/products/signature-fragrance.svg",
+    imageGallery: [
+      "/products/signature-fragrance.svg",
+      "/products/soft-touch-foundation.svg",
+      "/products/repair-hair-oil.svg",
+    ],
     imageAlt: "زجاجة عطر لمسة فاخرة",
     price: 199,
     badge: "شحن مجاني",
@@ -96,6 +117,11 @@ export const PRODUCTS: Product[] = [
     category: "skin-care",
     categoryLabel: CATEGORY_LABELS["skin-care"],
     imagePath: "/products/daily-bright-cream.svg",
+    imageGallery: [
+      "/products/daily-bright-cream.svg",
+      "/products/vitamin-c-serum.svg",
+      "/products/soft-touch-foundation.svg",
+    ],
     imageAlt: "عبوة كريم تفتيح يومي للبشرة",
     price: 109,
     badge: "خصم 20%",
@@ -113,6 +139,11 @@ export const PRODUCTS: Product[] = [
     category: "hair-care",
     categoryLabel: CATEGORY_LABELS["hair-care"],
     imagePath: "/products/repair-hair-oil.svg",
+    imageGallery: [
+      "/products/repair-hair-oil.svg",
+      "/products/intense-hair-mask.svg",
+      "/products/signature-fragrance.svg",
+    ],
     imageAlt: "عبوة زيت إصلاح الشعر",
     price: 99,
     badge: "لفترة محدودة",

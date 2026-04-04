@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { getAdminOrders } from "@/lib/admin-storage";
+import { getAdminOrders, getDashboardSettings } from "@/lib/admin-storage";
+import { normalizeToEnglishDigits } from "@/lib/digits";
 
 export default function PoliciesPage() {
   const [orderId, setOrderId] = useState("");
   const [orderResult, setOrderResult] = useState<{ status: string; total: number } | null>(null);
   const [lookupError, setLookupError] = useState("");
+  const [currencySymbol] = useState(() => getDashboardSettings().currencySymbol);
 
   function handleLookup() {
-    const normalized = orderId.trim().toUpperCase();
+    const normalized = normalizeToEnglishDigits(orderId).trim().toUpperCase();
     if (!normalized) {
       setLookupError("أدخلي رقم الطلب أولاً.");
       setOrderResult(null);
@@ -75,7 +77,7 @@ export default function PoliciesPage() {
             type="text"
             placeholder="مثال: ORD-2026-123456"
             value={orderId}
-            onChange={(event) => setOrderId(event.target.value)}
+            onChange={(event) => setOrderId(normalizeToEnglishDigits(event.target.value))}
           />
           <button className="hero-btn hero-btn--primary" type="button" onClick={handleLookup}>
             تحقق
@@ -84,9 +86,14 @@ export default function PoliciesPage() {
         {lookupError ? <p className="mt-2 text-sm font-black text-red-700">{lookupError}</p> : null}
         {orderResult ? (
           <p className="mt-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm font-black text-green-800">
-            حالة الطلب: {orderResult.status} • القيمة: {Math.round(orderResult.total)} ر.س
+            حالة الطلب: {orderResult.status} • القيمة: {Math.round(orderResult.total)} {currencySymbol}
           </p>
         ) : null}
+        <div className="mt-3">
+          <Link className="mini-link" href="/track-order">
+            فتح صفحة التتبع الكاملة
+          </Link>
+        </div>
       </section>
 
       <section className="mt-4 rounded-2xl border border-zinc-200 bg-white p-4">
@@ -116,6 +123,9 @@ export default function PoliciesPage() {
         </a>
         <Link className="hero-btn hero-btn--secondary" href="/store">
           العودة للمتجر
+        </Link>
+        <Link className="hero-btn hero-btn--secondary" href="/track-order">
+          تتبع الطلب
         </Link>
       </div>
     </main>

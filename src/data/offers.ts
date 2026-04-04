@@ -1,4 +1,5 @@
 import { PRODUCTS, type ProductCategory } from "@/data/products";
+import { getAdminOffers, type AdminOffer } from "@/lib/admin-storage";
 
 export type OfferRule = {
   minSubtotal?: number;
@@ -18,6 +19,7 @@ export type Offer = {
   discountFixed?: number;
   freeShipping?: boolean;
   couponCode?: string;
+  isEnabled?: boolean;
 };
 
 export type CartLineForOffer = {
@@ -71,9 +73,22 @@ export const OFFERS: Offer[] = [
   },
 ];
 
+function getSourceOffers(): Offer[] {
+  if (typeof window === "undefined") {
+    return OFFERS;
+  }
+
+  try {
+    const managed = getAdminOffers() as AdminOffer[];
+    return managed.length > 0 ? managed : OFFERS;
+  } catch {
+    return OFFERS;
+  }
+}
+
 export function getActiveOffers(now = new Date()): Offer[] {
   const ts = now.getTime();
-  return OFFERS.filter((offer) => Number(new Date(offer.expiresAt)) > ts);
+  return getSourceOffers().filter((offer) => offer.isEnabled !== false && Number(new Date(offer.expiresAt)) > ts);
 }
 
 export function getSecondsLeft(expiresAt: string, now = new Date()): number {

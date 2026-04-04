@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import { Cairo, Geist_Mono } from "next/font/google";
 import CartProvider from "@/components/cart-provider";
 import MobileDock from "@/components/mobile-dock";
 import SiteFooter from "@/components/site-footer";
 import SiteHeader from "@/components/site-header";
 import "./globals.css";
 
-const cairo = Cairo({
-  variable: "--font-cairo",
-  subsets: ["arabic", "latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://siraljamal.sa"),
   title: "سر الجمال | العروض اليومية للجمال والعناية",
   description: "سر الجمال منصة عربية للعناية والجمال بعروض يومية وتجربة شراء سريعة ومتوافقة مع الجوال.",
+  manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "سر الجمال | العروض اليومية للجمال والعناية",
+    description: "سر الجمال منصة عربية للعناية والجمال بعروض يومية وتجربة شراء سريعة ومتوافقة مع الجوال.",
+    type: "website",
+    locale: "ar_SA",
+    siteName: "سر الجمال",
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({
@@ -27,10 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ar"
-      className={`${cairo.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="ar" className="h-full antialiased">
       <body className="site-body min-h-full flex flex-col">
         <CartProvider>
           <SiteHeader />

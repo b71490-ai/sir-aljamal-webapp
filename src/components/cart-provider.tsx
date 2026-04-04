@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useCallback } from "react";
-import { PRODUCTS, getProductById } from "@/data/products";
+import { getAdminProductById } from "@/lib/admin-storage";
 
 type CartItem = {
   productId: string;
@@ -25,7 +25,7 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 function sanitizeItems(items: CartItem[]) {
   return items.filter(
-    (item) => item.quantity > 0 && PRODUCTS.some((product) => product.id === item.productId),
+    (item) => item.quantity > 0 && Boolean(getAdminProductById(item.productId)),
   );
 }
 
@@ -41,10 +41,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
         return [];
       }
       const parsed = JSON.parse(raw) as CartItem[];
-      if (Array.isArray(parsed)) {
-        return sanitizeItems(parsed);
-      }
-      return [];
+      return Array.isArray(parsed) ? sanitizeItems(parsed) : [];
     } catch {
       return [];
     }
@@ -55,7 +52,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   }, [items]);
 
   const addToCart = useCallback((productId: string, quantity = 1) => {
-    if (!getProductById(productId) || quantity <= 0) {
+    if (!getAdminProductById(productId) || quantity <= 0) {
       return;
     }
 
@@ -101,7 +98,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   const subtotal = useMemo(
     () =>
       items.reduce((acc, item) => {
-        const product = getProductById(item.productId);
+        const product = getAdminProductById(item.productId);
         if (!product) {
           return acc;
         }

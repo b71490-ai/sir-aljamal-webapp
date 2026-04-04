@@ -1,0 +1,486 @@
+{
+  "revision": 30,
+  "updatedAt": "2026-04-03T17:28:13.539Z",
+  "products": [
+    {
+      "id": "vitamin-c-serum",
+      "name": "سيروم فيتامين C",
+      "category": "skin-care",
+      "categoryLabel": "العناية بالبشرة",
+      "imagePath": "/products/vitamin-c-serum.svg",
+      "imageGallery": [
+        "/products/vitamin-c-serum.svg"
+      ],
+      "imageAlt": "عبوة سيروم فيتامين سي للعناية بالبشرة",
+      "price": 129,
+      "badge": "الأكثر مبيعًا",
+      "rating": 4.9,
+      "shortDescription": "إشراقة يومية وتوحيد لون البشرة بتركيبة خفيفة.",
+      "benefits": [
+        "تفتيح مظهر البشرة الباهتة",
+        "تقليل مظهر البقع الداكنة تدريجيًا",
+        "مناسب للاستخدام اليومي صباحًا"
+      ],
+      "sku": "SJ-0001",
+      "stock": 12,
+      "isActive": true,
+      "sales": 20,
+      "updatedAt": "2026-04-03T11:41:26.552Z"
+    },
+    {
+      "id": "intense-hair-mask",
+      "name": "ماسك ترطيب مكثف",
+      "category": "hair-care",
+      "categoryLabel": "العناية بالشعر",
+      "imagePath": "/products/intense-hair-mask.svg",
+      "imageGallery": [
+        "/products/intense-hair-mask.svg"
+      ],
+      "imageAlt": "عبوة ماسك ترطيب للشعر",
+      "price": 89,
+      "badge": "عرض اليوم",
+      "rating": 4.8,
+      "shortDescription": "ترطيب عميق للشعر الجاف والمتقصف مع نعومة ملحوظة.",
+      "benefits": [
+        "تقليل الهيشان بعد أول استخدام",
+        "زيادة النعومة والمرونة",
+        "آمن للشعر المصبوغ"
+      ],
+      "sku": "SJ-0002",
+      "stock": 19,
+      "isActive": true,
+      "sales": 33,
+      "updatedAt": "2026-04-03T11:41:26.552Z"
+    },
+    {
+      "id": "soft-touch-foundation",
+      "name": "فاونديشن ناعم",
+      "category": "makeup",
+      "categoryLabel": "المكياج",
+      "imagePath": "/products/soft-touch-foundation.svg",
+      "imageGallery": [
+        "/products/soft-touch-foundation.svg"
+      ],
+      "imageAlt": "عبوة فاونديشن للمكياج اليومي",
+      "price": 149,
+      "badge": "جديد",
+      "rating": 4.7,
+      "shortDescription": "تغطية طبيعية قابلة للبناء مع لمسة نهائية مخملية.",
+      "benefits": [
+        "ثبات طويل طوال اليوم",
+        "قوام خفيف لا يسد المسام",
+        "يندمج بسهولة مع البشرة"
+      ],
+      "sku": "SJ-0003",
+      "stock": 26,
+      "isActive": true,
+      "sales": 46,
+      "updatedAt": "2026-04-03T11:41:26.552Z"
+    },
+    {
+      "id": "signature-fragrance",
+      "name": "عطر لمسة فاخرة",
+      "category": "fragrance",
+      "categoryLabel": "العطور",
+      "imagePath": "/products/signature-fragrance.svg",
+      "imageGallery": [
+        "/products/signature-fragrance.svg"
+      ],
+      "imageAlt": "زجاجة عطر لمسة فاخرة",
+      "price": 199,
+      "badge": "شحن مجاني",
+      "rating": 4.9,
+      "shortDescription": "رائحة راقية بثبات عالٍ ولمسة عصرية.",
+      "benefits": [
+        "ثبات يدوم لساعات طويلة",
+        "مناسب للمناسبات والاستخدام اليومي",
+        "تركيبة متوازنة غير مزعجة"
+      ],
+      "sku": "SJ-0004",
+      "stock": 15,
+      "isActive": true,
+      "sales": 59,
+      "updatedAt": "2026-04-03T11:41:26.552Z"
+    },
+    {
+      "id": "daily-bright-cream",
+      "name": "كريم تفتيح يومي",
+      "category": "skin-care",
+      "categoryLabel": "العناية بالبشرة",
+      "imagePath": "/products/daily-bright-cream.svg",
+      "imageGallery": [
+        "/products/daily-bright-cream.svg"
+      ],
+      "imageAlt": "عبوة كريم تفتيح يومي للبشرة",
+      "price": 109,
+      "badge": "خصم 20%",
+      "rating": 4.6,
+      "shortDescription": "ترطيب وتفتيح لطيف يمنح البشرة مظهرًا صحيًا.",
+      "benefits": [
+        "يدعم توحيد المظهر العام للبشرة",
+        "ترطيب متوازن بدون لمعان زائد",
+        "مثالي تحت المكياج"
+      ],
+      "sku": "SJ-0005",
+      "stock": 22,
+      "isActive": true,
+      "sales": 72,
+      "updatedAt": "2026-04-03T11:41:26.552Z"
+    },
+    {
+      "id": "repair-hair-oil",
+      "name": "زيت إصلاح الشعر",
+      "category": "hair-care",
+      "categoryLabel": "العناية بالشعر",
+      "imagePath": "/products/repair-hair-oil.svg",
+      "imageGallery": [
+        "/products/repair-hair-oil.svg"
+      ],
+      "imageAlt": "عبوة زيت إصلاح الشعر",
+      "price": 99,
+      "badge": "لفترة محدودة",
+      "rating": 4.8,
+      "shortDescription": "عناية مركزة لأطراف الشعر وحماية من التقصف.",
+      "benefits": [
+        "تقليل مظهر الأطراف المتقصفة",
+        "إضافة لمعان طبيعي للشعر",
+        "يمتص بسرعة بدون دهون"
+      ],
+      "sku": "SJ-0006",
+      "stock": 29,
+      "isActive": true,
+      "sales": 25,
+      "updatedAt": "2026-04-03T11:41:26.552Z"
+    }
+  ],
+  "offers": [
+    {
+      "id": "welcome-35",
+      "title": "خصم 35% على مختارات البشرة",
+      "details": "خصم تلقائي على منتجات العناية بالبشرة حتى نهاية اليوم.",
+      "expiresAt": "2026-12-31T21:59:59.000Z",
+      "href": "/store?category=skin-care",
+      "badge": "عرض تلقائي",
+      "rule": {
+        "minSubtotal": 80,
+        "category": "skin-care"
+      },
+      "discountPercent": 35,
+      "freeShipping": false,
+      "isEnabled": true
+    },
+    {
+      "id": "makeup-bundle",
+      "title": "خصم 25% على المكياج",
+      "details": "عند شراء أي منتجين من قسم المكياج يتم تطبيق خصم تلقائي.",
+      "expiresAt": "2026-12-30T21:59:59.000Z",
+      "href": "/store?category=makeup",
+      "badge": "لفترة محدودة",
+      "rule": {
+        "category": "makeup"
+      },
+      "discountPercent": 25,
+      "freeShipping": false,
+      "isEnabled": true
+    },
+    {
+      "id": "free-shipping-79",
+      "title": "شحن مجاني فوق 79 ر.س",
+      "details": "الشحن يصبح مجانيًا تلقائيًا عند تجاوز الحد الأدنى.",
+      "expiresAt": "2026-12-31T21:59:59.000Z",
+      "href": "/checkout",
+      "badge": "مباشر",
+      "rule": {
+        "minSubtotal": 79
+      },
+      "freeShipping": true,
+      "isEnabled": true
+    },
+    {
+      "id": "coupon-glow10",
+      "title": "كود GLOW10",
+      "details": "خصم 10% على كامل السلة باستخدام الكود.",
+      "expiresAt": "2026-12-31T21:59:59.000Z",
+      "href": "/checkout",
+      "badge": "كوبون",
+      "rule": {
+        "minSubtotal": 120
+      },
+      "discountPercent": 10,
+      "freeShipping": false,
+      "couponCode": "GLOW10",
+      "isEnabled": true
+    }
+  ],
+  "orders": [],
+  "leads": [],
+  "settings": {
+    "whatsappNumber": "967779992669",
+    "supportEmail": "b71490@gmail.com",
+    "footerContactTitle": "سر الجمال",
+    "workingHoursLabel": "يوميًا من 10 صباحًا حتى 11 مساءً",
+    "currencyCode": "YER",
+    "currencySymbol": "ر.ي",
+    "lowStockThreshold": 8,
+    "smartMode": true,
+    "adminPin": "1234",
+    "walletName": "المحفظة الرئيسية",
+    "walletAccountNumber": "779992669",
+    "paymentMethods": [
+      {
+        "id": "wallet-default",
+        "name": "المحفظة الرئيسية",
+        "provider": "تحويل محفظة",
+        "accountName": "متجر سر الجمال",
+        "accountNumber": "779992669",
+        "instructions": "حوّلي المبلغ ثم أضيفي مرجع العملية واسم المحوّل لإتمام الطلب.",
+        "isEnabled": true
+      },
+      {
+        "id": "jeeb",
+        "name": "جيب",
+        "provider": "محفظة جيب",
+        "accountName": "متجر سر الجمال",
+        "accountNumber": "777123456",
+        "instructions": "حوّلي المبلغ كاملًا ثم اكتبي رقم العملية أو المرجع كما ظهر لك في التطبيق.",
+        "isEnabled": true
+      },
+      {
+        "id": "jawali",
+        "name": "جوالي",
+        "provider": "محفظة جوالي",
+        "accountName": "متجر سر الجمال",
+        "accountNumber": "771234567",
+        "instructions": "بعد التحويل عبر جوالي أدخلي اسم المحوّل ورقم المرجع لتأكيد الطلب بسرعة.",
+        "isEnabled": true
+      },
+      {
+        "id": "kuraimi",
+        "name": "الكريمي",
+        "provider": "الكريمي / موبايل موني",
+        "accountName": "متجر سر الجمال",
+        "accountNumber": "3400123456",
+        "instructions": "يمكنك التحويل من تطبيق الكريمي أو أي فرع ثم تدوين رقم الحوالة في الحقل المخصص.",
+        "isEnabled": true
+      }
+    ]
+  },
+  "auditLogs": [
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775237293457-624",
+      "createdAt": "2026-04-03T17:28:13.458Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775237275042-171",
+      "createdAt": "2026-04-03T17:27:55.042Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775237274390-615",
+      "createdAt": "2026-04-03T17:27:54.390Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236974919-253",
+      "createdAt": "2026-04-03T17:22:54.919Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236973852-347",
+      "createdAt": "2026-04-03T17:22:53.852Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236968752-711",
+      "createdAt": "2026-04-03T17:22:48.752Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236968502-646",
+      "createdAt": "2026-04-03T17:22:48.502Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236967401-27",
+      "createdAt": "2026-04-03T17:22:47.401Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236944851-683",
+      "createdAt": "2026-04-03T17:22:24.851Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236933068-321",
+      "createdAt": "2026-04-03T17:22:13.068Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236932835-745",
+      "createdAt": "2026-04-03T17:22:12.835Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236932586-554",
+      "createdAt": "2026-04-03T17:22:12.586Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236931734-23",
+      "createdAt": "2026-04-03T17:22:11.734Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236880386-10",
+      "createdAt": "2026-04-03T17:21:20.386Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236880102-496",
+      "createdAt": "2026-04-03T17:21:20.102Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236876617-818",
+      "createdAt": "2026-04-03T17:21:16.617Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236874817-162",
+      "createdAt": "2026-04-03T17:21:14.817Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236873120-909",
+      "createdAt": "2026-04-03T17:21:13.120Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236595779-558",
+      "createdAt": "2026-04-03T17:16:35.779Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236595546-883",
+      "createdAt": "2026-04-03T17:16:35.546Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236595296-594",
+      "createdAt": "2026-04-03T17:16:35.296Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236595063-673",
+      "createdAt": "2026-04-03T17:16:35.063Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236592961-348",
+      "createdAt": "2026-04-03T17:16:32.961Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775236535733-63",
+      "createdAt": "2026-04-03T17:15:35.734Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775235847523-25",
+      "createdAt": "2026-04-03T17:04:07.523Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775235814889-168",
+      "createdAt": "2026-04-03T17:03:34.889Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775235806528-706",
+      "createdAt": "2026-04-03T17:03:26.528Z"
+    }
+  ]
+}

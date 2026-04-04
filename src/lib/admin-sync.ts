@@ -39,6 +39,7 @@ function dedupeById<T extends { id: string }>(items: T[]) {
 function mergeConflict(server: Partial<AdminStateSnapshot>, local: AdminStateSnapshot): AdminStateSnapshot {
   return {
     products: dedupeById([...(server.products || []), ...local.products]),
+    offers: dedupeById([...(server.offers || []), ...local.offers]),
     orders: dedupeById([...(server.orders || []), ...local.orders]),
     leads: dedupeById([...(server.leads || []), ...local.leads]),
     auditLogs: dedupeById([...(server.auditLogs || []), ...local.auditLogs]),

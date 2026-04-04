@@ -7,9 +7,9 @@ import { useCart } from "@/components/cart-provider";
 const DOCK_ITEMS = [
   { href: "/", label: "الرئيسية" },
   { href: "/store", label: "المتجر" },
+  { href: "/account", label: "حسابي" },
+  { href: "/wishlist", label: "المفضلة" },
   { href: "/checkout", label: "السلة" },
-  { href: "/offers", label: "العروض" },
-  { href: "/admin", label: "التحكم" },
 ];
 
 export default function MobileDock() {

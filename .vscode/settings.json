@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "*.sql": "postgres",
+    "supabase/admin_state.sql": "postgres",
+    "supabase/*.sql": "postgres"
+  },
+  "mssql.intelliSense.enableIntelliSense": false,
+  "mssql.intelliSense.enableErrorChecking": false,
+  "mssql.autoDisableNonTSqlLanguageService": true
+}

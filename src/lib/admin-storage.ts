@@ -1,6 +1,28 @@
 "use client";
 
-import { PRODUCTS, getProductById, type Product } from "@/data/products";
+import { CATEGORY_LABELS, PRODUCTS, type Product, type ProductCategory } from "@/data/products";
+import { normalizeToEnglishDigits } from "@/lib/digits";
+
+export type AdminOfferRule = {
+  minSubtotal?: number;
+  category?: ProductCategory;
+  productIds?: string[];
+};
+
+export type AdminOffer = {
+  id: string;
+  title: string;
+  details: string;
+  expiresAt: string;
+  href: string;
+  badge: string;
+  rule: AdminOfferRule;
+  discountPercent?: number;
+  discountFixed?: number;
+  freeShipping?: boolean;
+  couponCode?: string;
+  isEnabled: boolean;
+};
 
 export type AdminProduct = Product & {
   sku: string;
@@ -19,8 +41,19 @@ export type AdminOrderItem = {
 };
 
 export type AdminOrderStatus = "new" | "processing" | "shipped" | "completed" | "cancelled";
+export type AdminOrderPaymentStatus = "pending_transfer" | "under_review" | "paid" | "rejected";
 export type AdminLeadStatus = "new" | "contacted" | "qualified" | "closed";
 export type AdminRole = "owner" | "staff" | "support";
+
+export type AdminPaymentMethod = {
+  id: string;
+  name: string;
+  provider: string;
+  accountName: string;
+  accountNumber: string;
+  instructions: string;
+  isEnabled: boolean;
+};
 
 export type AdminOrder = {
   id: string;
@@ -31,6 +64,12 @@ export type AdminOrder = {
   notes: string;
   source: "checkout" | "support";
   status: AdminOrderStatus;
+  paymentStatus: AdminOrderPaymentStatus;
+  paymentMethodId: string;
+  paymentMethodLabel: string;
+  paymentReference: string;
+  payerName: string;
+  paymentReceiptImage?: string;
   items: AdminOrderItem[];
   subtotal: number;
   deliveryFee: number;
@@ -63,9 +102,17 @@ export type AdminAuditLog = {
 
 export type DashboardSettings = {
   whatsappNumber: string;
+  supportEmail: string;
+  footerContactTitle: string;
+  workingHoursLabel: string;
+  currencyCode: "SAR" | "YER" | "USD";
+  currencySymbol: string;
   lowStockThreshold: number;
   smartMode: boolean;
   adminPin: string;
+  walletName: string;
+  walletAccountNumber: string;
+  paymentMethods: AdminPaymentMethod[];
 };
 
 export type DashboardInsights = {
@@ -81,6 +128,7 @@ export type DashboardInsights = {
 
 export type AdminStateSnapshot = {
   products: AdminProduct[];
+  offers: AdminOffer[];
   orders: AdminOrder[];
   leads: AdminLead[];
   settings: DashboardSettings;
@@ -89,6 +137,7 @@ export type AdminStateSnapshot = {
 
 const STORAGE_KEYS = {
   products: "sir-aljamal-admin-products",
+  offers: "sir-aljamal-admin-offers",
   orders: "sir-aljamal-admin-orders",
   leads: "sir-aljamal-admin-leads",
   settings: "sir-aljamal-admin-settings",
@@ -97,10 +146,145 @@ const STORAGE_KEYS = {
 
 const DEFAULT_SETTINGS: DashboardSettings = {
   whatsappNumber: "966500000000",
+  supportEmail: "support@siraljamal.sa",
+  footerContactTitle: "أتيلية العطر",
+  workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
+  currencyCode: "SAR",
+  currencySymbol: "ر.س",
   lowStockThreshold: 8,
   smartMode: true,
   adminPin: "1234",
+  walletName: "المحفظة الرئيسية",
+  walletAccountNumber: "777123456",
+  paymentMethods: [
+    {
+      id: "jeeb",
+      name: "جيب",
+      provider: "محفظة جيب",
+      accountName: "متجر سر الجمال",
+      accountNumber: "777123456",
+      instructions: "حوّلي المبلغ كاملًا ثم اكتبي رقم العملية أو المرجع كما ظهر لك في التطبيق.",
+      isEnabled: true,
+    },
+    {
+      id: "jawali",
+      name: "جوالي",
+      provider: "محفظة جوالي",
+      accountName: "متجر سر الجمال",
+      accountNumber: "771234567",
+      instructions: "بعد التحويل عبر جوالي أدخلي اسم المحوّل ورقم المرجع لتأكيد الطلب بسرعة.",
+      isEnabled: true,
+    },
+    {
+      id: "kuraimi",
+      name: "الكريمي",
+      provider: "الكريمي / موبايل موني",
+      accountName: "متجر سر الجمال",
+      accountNumber: "3400123456",
+      instructions: "يمكنك التحويل من تطبيق الكريمي أو أي فرع ثم تدوين رقم الحوالة في الحقل المخصص.",
+      isEnabled: true,
+    },
+    {
+      id: "flousak",
+      name: "فلوسك",
+      provider: "محفظة فلوسك",
+      accountName: "متجر سر الجمال",
+      accountNumber: "780123456",
+      instructions: "حوّلي المبلغ عبر تطبيق فلوسك ثم اكتبي اسم المحوّل ورقم المرجع لتأكيد الطلب.",
+      isEnabled: true,
+    },
+  ],
 };
+
+function sanitizePaymentMethods(methods: AdminPaymentMethod[] | undefined): AdminPaymentMethod[] {
+  const fallback = DEFAULT_SETTINGS.paymentMethods;
+  if (!Array.isArray(methods) || methods.length === 0) {
+    return fallback;
+  }
+
+  return methods
+    .map((method, index) => ({
+      id: String(method.id || fallback[index]?.id || `payment-${Date.now()}-${index}`),
+      name: String(method.name || fallback[index]?.name || "وسيلة دفع").trim() || "وسيلة دفع",
+      provider: String(method.provider || fallback[index]?.provider || "تحويل").trim() || "تحويل",
+      accountName: String(method.accountName || "").trim(),
+      accountNumber: String(method.accountNumber || "").trim(),
+      instructions: String(method.instructions || "").trim(),
+      isEnabled: method.isEnabled !== false,
+    }))
+    .filter((method) => method.accountName && method.accountNumber)
+    .slice(0, 10);
+}
+
+function sanitizeCurrencyCode(code: unknown): DashboardSettings["currencyCode"] {
+  if (code === "YER" || code === "USD" || code === "SAR") {
+    return code;
+  }
+  return "SAR";
+}
+
+function sanitizeCurrencySymbol(symbol: unknown, code: DashboardSettings["currencyCode"]) {
+  const value = String(symbol || "").trim();
+  if (value) {
+    return value.slice(0, 8);
+  }
+
+  if (code === "YER") {
+    return "ر.ي";
+  }
+  if (code === "USD") {
+    return "$";
+  }
+  return "ر.س";
+}
+
+const DEFAULT_OFFERS: AdminOffer[] = [
+  {
+    id: "welcome-35",
+    title: "خصم 35% على مختارات البشرة",
+    details: "خصم تلقائي على منتجات العناية بالبشرة حتى نهاية اليوم.",
+    expiresAt: "2026-12-31T21:59:59.000Z",
+    href: "/store?category=skin-care",
+    badge: "عرض تلقائي",
+    rule: { category: "skin-care", minSubtotal: 80 },
+    discountPercent: 35,
+    isEnabled: true,
+  },
+  {
+    id: "makeup-bundle",
+    title: "خصم 25% على المكياج",
+    details: "عند شراء أي منتجين من قسم المكياج يتم تطبيق خصم تلقائي.",
+    expiresAt: "2026-12-30T21:59:59.000Z",
+    href: "/store?category=makeup",
+    badge: "لفترة محدودة",
+    rule: { category: "makeup" },
+    discountPercent: 25,
+    isEnabled: true,
+  },
+  {
+    id: "free-shipping-79",
+    title: "شحن مجاني فوق 79 ر.س",
+    details: "الشحن يصبح مجانيًا تلقائيًا عند تجاوز الحد الأدنى.",
+    expiresAt: "2026-12-31T21:59:59.000Z",
+    href: "/checkout",
+    badge: "مباشر",
+    rule: { minSubtotal: 79 },
+    freeShipping: true,
+    isEnabled: true,
+  },
+  {
+    id: "coupon-glow10",
+    title: "كود GLOW10",
+    details: "خصم 10% على كامل السلة باستخدام الكود.",
+    expiresAt: "2026-12-31T21:59:59.000Z",
+    href: "/checkout",
+    badge: "كوبون",
+    rule: { minSubtotal: 120 },
+    discountPercent: 10,
+    couponCode: "GLOW10",
+    isEnabled: true,
+  },
+];
 
 function hasWindow() {
   return typeof window !== "undefined";
@@ -129,6 +313,37 @@ function writeStorage<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
+function sanitizeSnapshotList<T>(value: unknown, maxItems = 5000): T[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item) => typeof item === "object" && item !== null)
+    .slice(0, maxItems) as T[];
+}
+
+function toCsvCell(value: unknown) {
+  let text = String(value ?? "");
+  if (/^[=+\-@]/.test(text)) {
+    text = `'${text}`;
+  }
+
+  if (text.includes('"')) {
+    text = text.replace(/"/g, '""');
+  }
+
+  if (/[",\n]/.test(text)) {
+    text = `"${text}"`;
+  }
+
+  return text;
+}
+
+function toCsvRow(values: unknown[]) {
+  return values.map((value) => toCsvCell(value)).join(",");
+}
+
 function toAdminProduct(product: Product, index: number): AdminProduct {
   return {
     ...product,
@@ -144,19 +359,128 @@ function defaultProducts(): AdminProduct[] {
   return PRODUCTS.map((product, index) => toAdminProduct(product, index));
 }
 
+function sanitizeOfferRule(rule: Partial<AdminOfferRule> | undefined): AdminOfferRule {
+  const next: AdminOfferRule = {};
+
+  if (Number.isFinite(Number(rule?.minSubtotal)) && Number(rule?.minSubtotal) > 0) {
+    next.minSubtotal = Number(rule?.minSubtotal);
+  }
+
+  if (rule?.category && (Object.keys(CATEGORY_LABELS) as ProductCategory[]).includes(rule.category)) {
+    next.category = rule.category;
+  }
+
+  if (Array.isArray(rule?.productIds)) {
+    const ids = rule.productIds.map((item) => String(item || "").trim()).filter(Boolean);
+    if (ids.length > 0) {
+      next.productIds = ids.slice(0, 20);
+    }
+  }
+
+  return next;
+}
+
+function sanitizeOffers(offers: AdminOffer[]): AdminOffer[] {
+  const normalized: AdminOffer[] = [];
+
+  offers.forEach((offer, index) => {
+    const fallback = DEFAULT_OFFERS[index] || DEFAULT_OFFERS[0];
+    const title = String(offer.title || "").trim();
+    const details = String(offer.details || "").trim();
+    const href = String(offer.href || "").trim();
+
+    if (!title || !details || !href) {
+      return;
+    }
+
+    normalized.push({
+      id: String(offer.id || `offer-${Date.now()}-${index}`),
+      title,
+      details,
+      expiresAt: offer.expiresAt || fallback.expiresAt,
+      href,
+      badge: String(offer.badge || fallback.badge || "عرض خاص").trim() || "عرض خاص",
+      rule: sanitizeOfferRule(offer.rule),
+      discountPercent: Number.isFinite(Number(offer.discountPercent)) ? Math.max(0, Number(offer.discountPercent)) : undefined,
+      discountFixed: Number.isFinite(Number(offer.discountFixed)) ? Math.max(0, Number(offer.discountFixed)) : undefined,
+      freeShipping: Boolean(offer.freeShipping),
+      couponCode: String(offer.couponCode || "").trim().toUpperCase() || undefined,
+      isEnabled: offer.isEnabled !== false,
+    });
+  });
+
+  return normalized;
+}
+
+function normalizeCategory(value: string | undefined, fallback: ProductCategory): ProductCategory {
+  const categories = Object.keys(CATEGORY_LABELS) as ProductCategory[];
+  if (value && categories.includes(value as ProductCategory)) {
+    return value as ProductCategory;
+  }
+  return fallback;
+}
+
+function fallbackProductFromInput(product: Partial<AdminProduct>): Product | null {
+  const id = String(product.id || "").trim();
+  if (!id) {
+    return null;
+  }
+
+  const category = normalizeCategory(String(product.category || ""), "skin-care");
+  const imagePath = String(product.imagePath || "").trim() || "/products/vitamin-c-serum.svg";
+
+  return {
+    id,
+    name: String(product.name || "منتج جديد").trim() || "منتج جديد",
+    category,
+    categoryLabel: CATEGORY_LABELS[category],
+    imagePath,
+    imageGallery: [imagePath],
+    imageAlt: String(product.imageAlt || "صورة المنتج").trim() || "صورة المنتج",
+    price: Number(product.price) > 0 ? Number(product.price) : 99,
+    badge: String(product.badge || "جديد").trim() || "جديد",
+    rating: Number.isFinite(Number(product.rating)) ? Math.max(1, Math.min(5, Number(product.rating))) : 4.5,
+    shortDescription: String(product.shortDescription || "وصف المنتج").trim() || "وصف المنتج",
+    benefits: Array.isArray(product.benefits) && product.benefits.length > 0
+      ? product.benefits.map((item) => String(item || "").trim()).filter(Boolean)
+      : ["ميزة أساسية للمنتج"],
+  };
+}
+
+function normalizeImageGallery(product: Partial<Product>, fallback: Product): string[] {
+  const raw = Array.isArray(product.imageGallery) ? product.imageGallery : [];
+  const trimmed = raw.map((item) => String(item || "").trim()).filter(Boolean);
+  if (trimmed.length > 0) {
+    return trimmed;
+  }
+
+  const legacyMain = String(product.imagePath || "").trim();
+  if (legacyMain) {
+    return [legacyMain];
+  }
+
+  return [fallback.imagePath];
+}
+
 function sanitizeProducts(products: AdminProduct[]): AdminProduct[] {
   const fallbackMap = new Map(defaultProducts().map((item) => [item.id, item]));
 
   return products
-    .map((product) => {
-      const fallback = fallbackMap.get(product.id);
+    .map((product, index) => {
+      const generatedFallback = fallbackProductFromInput(product);
+      const fallback = fallbackMap.get(product.id) ?? (generatedFallback ? toAdminProduct(generatedFallback, index) : null);
       if (!fallback) {
         return null;
       }
 
+      const imageGallery = normalizeImageGallery(product, fallback);
+
       return {
         ...fallback,
         ...product,
+        imageGallery,
+        imagePath: imageGallery[0],
+        imageAlt: String(product.imageAlt || fallback.imageAlt),
         price: Number(product.price) > 0 ? Number(product.price) : fallback.price,
         stock: Number.isFinite(Number(product.stock)) ? Math.max(0, Number(product.stock)) : fallback.stock,
         sales: Number.isFinite(Number(product.sales)) ? Math.max(0, Number(product.sales)) : fallback.sales,
@@ -189,13 +513,47 @@ export function saveAdminProducts(products: AdminProduct[]) {
   writeStorage(STORAGE_KEYS.products, normalized);
 }
 
+export function getAdminOffers(): AdminOffer[] {
+  const stored = readStorage<AdminOffer[] | null>(STORAGE_KEYS.offers, null);
+  if (!stored || !Array.isArray(stored) || stored.length === 0) {
+    writeStorage(STORAGE_KEYS.offers, DEFAULT_OFFERS);
+    return DEFAULT_OFFERS;
+  }
+
+  const normalized = sanitizeOffers(stored);
+  if (normalized.length === 0) {
+    writeStorage(STORAGE_KEYS.offers, DEFAULT_OFFERS);
+    return DEFAULT_OFFERS;
+  }
+
+  return normalized;
+}
+
+export function saveAdminOffers(offers: AdminOffer[]) {
+  writeStorage(STORAGE_KEYS.offers, sanitizeOffers(offers));
+}
+
+export function getAdminProductById(productId: string): AdminProduct | null {
+  return getAdminProducts().find((product) => product.id === productId) ?? null;
+}
+
 export function getAdminOrders(): AdminOrder[] {
   const orders = readStorage<AdminOrder[]>(STORAGE_KEYS.orders, []);
   if (!Array.isArray(orders)) {
     return [];
   }
 
-  return orders.sort((a, b) => Number(new Date(b.createdAt)) - Number(new Date(a.createdAt)));
+  return orders
+    .map((order) => ({
+      ...order,
+      paymentStatus: order.paymentStatus || "pending_transfer",
+      paymentMethodId: order.paymentMethodId || "manual-transfer",
+      paymentMethodLabel: order.paymentMethodLabel || "تحويل يدوي",
+      paymentReference: order.paymentReference || "",
+      payerName: order.payerName || order.customerName,
+      paymentReceiptImage: order.paymentReceiptImage,
+    }))
+    .sort((a, b) => Number(new Date(b.createdAt)) - Number(new Date(a.createdAt)));
 }
 
 export function getAdminLeads(): AdminLead[] {
@@ -241,28 +599,67 @@ export function getDashboardSettings(): DashboardSettings {
     return DEFAULT_SETTINGS;
   }
 
+  const currencyCode = sanitizeCurrencyCode(settings.currencyCode);
+
   return {
     whatsappNumber: settings.whatsappNumber || DEFAULT_SETTINGS.whatsappNumber,
+    supportEmail: String(settings.supportEmail || DEFAULT_SETTINGS.supportEmail).trim() || DEFAULT_SETTINGS.supportEmail,
+    footerContactTitle: String(settings.footerContactTitle || DEFAULT_SETTINGS.footerContactTitle).trim() || DEFAULT_SETTINGS.footerContactTitle,
+    workingHoursLabel: String(settings.workingHoursLabel || DEFAULT_SETTINGS.workingHoursLabel).trim() || DEFAULT_SETTINGS.workingHoursLabel,
+    currencyCode,
+    currencySymbol: sanitizeCurrencySymbol(settings.currencySymbol, currencyCode),
     lowStockThreshold: Number.isFinite(settings.lowStockThreshold)
       ? Math.max(1, Number(settings.lowStockThreshold))
       : DEFAULT_SETTINGS.lowStockThreshold,
     smartMode: Boolean(settings.smartMode),
     adminPin: settings.adminPin || DEFAULT_SETTINGS.adminPin,
+    walletName: String(settings.walletName || DEFAULT_SETTINGS.walletName).trim() || DEFAULT_SETTINGS.walletName,
+    walletAccountNumber: String(settings.walletAccountNumber || DEFAULT_SETTINGS.walletAccountNumber).trim() || DEFAULT_SETTINGS.walletAccountNumber,
+    paymentMethods: sanitizePaymentMethods(settings.paymentMethods),
   };
 }
 
 export function saveDashboardSettings(settings: DashboardSettings) {
+  const previousSettings = getDashboardSettings();
+  const currencyCode = sanitizeCurrencyCode(settings.currencyCode);
+  const fallbackPaymentMethods = sanitizePaymentMethods(settings.paymentMethods);
+  const walletName = String(settings.walletName || "").trim() || DEFAULT_SETTINGS.walletName;
+  const walletAccountNumber = String(settings.walletAccountNumber || "").trim() || DEFAULT_SETTINGS.walletAccountNumber;
+  const walletMethodIndex = fallbackPaymentMethods.findIndex((method) => method.id === "wallet-default");
+  const walletMethod: AdminPaymentMethod = {
+    id: "wallet-default",
+    name: walletName,
+    provider: "تحويل محفظة",
+    accountName: "متجر سر الجمال",
+    accountNumber: walletAccountNumber,
+    instructions: "حوّلي المبلغ ثم أضيفي مرجع العملية واسم المحوّل لإتمام الطلب.",
+    isEnabled: true,
+  };
+
+  const paymentMethods =
+    walletMethodIndex >= 0
+      ? fallbackPaymentMethods.map((method, index) => (index === walletMethodIndex ? { ...method, ...walletMethod } : method))
+      : [walletMethod, ...fallbackPaymentMethods].slice(0, 10);
+
   const normalized = {
-    whatsappNumber: settings.whatsappNumber.replace(/\D/g, "") || DEFAULT_SETTINGS.whatsappNumber,
+    whatsappNumber: normalizeToEnglishDigits(settings.whatsappNumber).replace(/\D/g, "") || DEFAULT_SETTINGS.whatsappNumber,
+    supportEmail: String(settings.supportEmail || DEFAULT_SETTINGS.supportEmail).trim() || DEFAULT_SETTINGS.supportEmail,
+    footerContactTitle: String(settings.footerContactTitle || DEFAULT_SETTINGS.footerContactTitle).trim() || DEFAULT_SETTINGS.footerContactTitle,
+    workingHoursLabel: String(settings.workingHoursLabel || DEFAULT_SETTINGS.workingHoursLabel).trim() || DEFAULT_SETTINGS.workingHoursLabel,
+    currencyCode,
+    currencySymbol: sanitizeCurrencySymbol(settings.currencySymbol, currencyCode),
     lowStockThreshold: Math.max(1, Number(settings.lowStockThreshold) || DEFAULT_SETTINGS.lowStockThreshold),
     smartMode: Boolean(settings.smartMode),
-    adminPin: settings.adminPin.trim() || DEFAULT_SETTINGS.adminPin,
+    adminPin: String(settings.adminPin || "").trim() || previousSettings.adminPin || DEFAULT_SETTINGS.adminPin,
+    walletName,
+    walletAccountNumber,
+    paymentMethods,
   };
   writeStorage(STORAGE_KEYS.settings, normalized);
 }
 
 export function addAdminOrder(
-  payload: Omit<AdminOrder, "id" | "createdAt" | "status"> & { status?: AdminOrderStatus },
+  payload: Omit<AdminOrder, "id" | "createdAt" | "status" | "paymentStatus"> & { status?: AdminOrderStatus; paymentStatus?: AdminOrderPaymentStatus },
 ) {
   const orders = getAdminOrders();
   const order: AdminOrder = {
@@ -270,6 +667,7 @@ export function addAdminOrder(
     id: `ORD-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`,
     createdAt: new Date().toISOString(),
     status: payload.status ?? "new",
+    paymentStatus: payload.paymentStatus ?? "pending_transfer",
   };
 
   writeStorage(STORAGE_KEYS.orders, [order, ...orders]);
@@ -292,7 +690,7 @@ export function addAdminOrder(
     action: "create_order",
     entityType: "order",
     entityId: order.id,
-    details: `تم إنشاء طلب جديد بقيمة ${Math.round(order.total)} ر.س`,
+    details: `تم إنشاء طلب جديد بقيمة ${Math.round(order.total)} ر.س عبر ${order.paymentMethodLabel}`,
   });
 
   return order;
@@ -309,6 +707,20 @@ export function updateAdminOrderStatus(orderId: string, status: AdminOrderStatus
     entityType: "order",
     entityId: orderId,
     details: `تم تحديث حالة الطلب إلى ${status}`,
+  });
+}
+
+export function updateAdminOrderPaymentStatus(orderId: string, paymentStatus: AdminOrderPaymentStatus, actor: AdminRole = "staff") {
+  const orders = getAdminOrders().map((order) =>
+    order.id === orderId ? { ...order, paymentStatus } : order,
+  );
+  writeStorage(STORAGE_KEYS.orders, orders);
+  addAdminAuditLog({
+    actor,
+    action: "update_payment_status",
+    entityType: "order",
+    entityId: orderId,
+    details: `تم تحديث حالة الدفع إلى ${paymentStatus}`,
   });
 }
 
@@ -367,7 +779,7 @@ function getTopProductName(orders: AdminOrder[]): string {
     return "لا يوجد بيانات بعد";
   }
 
-  return getProductById(topEntry[0])?.name || topEntry[0];
+  return getAdminProductById(topEntry[0])?.name || topEntry[0];
 }
 
 export function buildDashboardInsights(
@@ -427,6 +839,7 @@ export function clearAdminData() {
 export function getAdminStateSnapshot(): AdminStateSnapshot {
   return {
     products: getAdminProducts(),
+    offers: getAdminOffers(),
     orders: getAdminOrders(),
     leads: getAdminLeads(),
     settings: getDashboardSettings(),
@@ -442,17 +855,20 @@ export function applyAdminStateSnapshot(snapshot: Partial<AdminStateSnapshot>) {
   if (snapshot.products) {
     saveAdminProducts(snapshot.products);
   }
+  if (snapshot.offers) {
+    saveAdminOffers(snapshot.offers);
+  }
   if (snapshot.orders) {
-    writeStorage(STORAGE_KEYS.orders, snapshot.orders);
+    writeStorage(STORAGE_KEYS.orders, sanitizeSnapshotList<AdminOrder>(snapshot.orders));
   }
   if (snapshot.leads) {
-    writeStorage(STORAGE_KEYS.leads, snapshot.leads);
+    writeStorage(STORAGE_KEYS.leads, sanitizeSnapshotList<AdminLead>(snapshot.leads));
   }
   if (snapshot.settings) {
     saveDashboardSettings(snapshot.settings);
   }
   if (snapshot.auditLogs) {
-    writeStorage(STORAGE_KEYS.audit, snapshot.auditLogs);
+    writeStorage(STORAGE_KEYS.audit, sanitizeSnapshotList<AdminAuditLog>(snapshot.auditLogs));
   }
 }
 
@@ -460,11 +876,12 @@ export function exportAdminReportCsv() {
   const orders = getAdminOrders();
   const leads = getAdminLeads();
   const products = getAdminProducts();
+  const offers = getAdminOffers();
 
   const lines = [
-    ["section", "id", "date", "name", "status", "total", "details"].join(","),
+    toCsvRow(["section", "id", "date", "name", "status", "total", "details"]),
     ...orders.map((order) =>
-      [
+      toCsvRow([
         "order",
         order.id,
         order.createdAt,
@@ -472,10 +889,10 @@ export function exportAdminReportCsv() {
         order.status,
         order.total,
         `items:${order.items.length}`,
-      ].join(","),
+      ]),
     ),
     ...leads.map((lead) =>
-      [
+      toCsvRow([
         "lead",
         lead.ticketNumber,
         lead.createdAt,
@@ -483,10 +900,10 @@ export function exportAdminReportCsv() {
         lead.status,
         "",
         lead.selectedProductName || "",
-      ].join(","),
+      ]),
     ),
     ...products.map((product) =>
-      [
+      toCsvRow([
         "product",
         product.sku,
         product.updatedAt,
@@ -494,7 +911,18 @@ export function exportAdminReportCsv() {
         product.isActive ? "active" : "inactive",
         product.price,
         `stock:${product.stock}`,
-      ].join(","),
+      ]),
+    ),
+    ...offers.map((offer) =>
+      toCsvRow([
+        "offer",
+        offer.id,
+        offer.expiresAt,
+        offer.title,
+        offer.isEnabled ? "active" : "inactive",
+        offer.discountPercent || offer.discountFixed || "",
+        offer.couponCode || offer.href,
+      ]),
     ),
   ];
 

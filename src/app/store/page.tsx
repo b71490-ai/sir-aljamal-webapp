@@ -4,27 +4,42 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import AddToCartButton from "@/components/add-to-cart-button";
+import WishlistToggle from "@/components/wishlist-toggle";
 import { CATEGORY_LABELS, type ProductCategory } from "@/data/products";
-import { getAdminProducts, type AdminProduct } from "@/lib/admin-storage";
+import { getAdminProducts, getDashboardSettings, type AdminProduct } from "@/lib/admin-storage";
 
 const CATEGORY_KEYS = Object.keys(CATEGORY_LABELS) as ProductCategory[];
 const PAGE_SIZE = 6;
 
-function formatPrice(price: number) {
-  return `${price} ر.س`;
+function getInitialStoreFilters(): { query: string; category: ProductCategory | "all" } {
+  if (typeof window === "undefined") {
+    return {
+      query: "",
+      category: "all" as ProductCategory | "all",
+    };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const categoryFromUrl = params.get("category");
+  const queryFromUrl = params.get("query") || "";
+  const initialCategory = CATEGORY_KEYS.includes(categoryFromUrl as ProductCategory)
+    ? (categoryFromUrl as ProductCategory)
+    : "all";
+
+  return {
+    query: queryFromUrl,
+    category: initialCategory,
+  };
+}
+
+function formatPrice(price: number, currencySymbol: string) {
+  return `${price} ${currencySymbol}`;
 }
 
 export default function StorePage() {
-  const categoryFromUrl =
-    typeof window === "undefined"
-      ? null
-      : new URLSearchParams(window.location.search).get("category");
-  const initialCategory = CATEGORY_KEYS.includes(categoryFromUrl as ProductCategory)
-    ? (categoryFromUrl as ProductCategory)
-    : null;
-
-  const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all">(initialCategory || "all");
+  const initialFilters = getInitialStoreFilters();
+  const [query, setQuery] = useState(initialFilters.query);
+  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all">(initialFilters.category);
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "newest">("featured");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -35,6 +50,7 @@ export default function StorePage() {
   const [products] = useState<AdminProduct[]>(() =>
     typeof window === "undefined" ? [] : getAdminProducts(),
   );
+  const [currencySymbol] = useState(() => (typeof window === "undefined" ? "ر.س" : getDashboardSettings().currencySymbol));
 
   const filteredProducts = useMemo(() => {
     const min = Number(minPrice) || 0;
@@ -92,16 +108,16 @@ export default function StorePage() {
   return (
     <main className="inner-page site-shell" dir="rtl">
       <section className="inner-page__hero">
-        <p className="inner-page__kicker">المتجر</p>
-        <h1 className="inner-page__title">متجر سر الجمال</h1>
+        <p className="inner-page__kicker">أتيلية العطر</p>
+        <h1 className="inner-page__title">متجر سر الجمال بطابع برفيوم فاخر</h1>
         <p className="inner-page__desc">
-          اكتشفي منتجات أصلية مختارة بعناية مع تجربة شراء سهلة جدًا ومناسبة للجوال.
+          تصفحي الرفوف بأسلوب أقرب لمتاجر العطور الراقية: ألوان أهدأ، إبراز أفضل للمنتج، وتجربة أنعم في البحث والاختيار.
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs font-black text-zinc-700">
-          <span className="trust-pill">شحن سريع</span>
-          <span className="trust-pill">منتجات موثقة</span>
-          <span className="trust-pill">عروض يومية</span>
-          <span className="trust-pill">دعم مباشر</span>
+          <span className="trust-pill">نفحات شرقية</span>
+          <span className="trust-pill">عروض بوتيك</span>
+          <span className="trust-pill">تغليف فاخر</span>
+          <span className="trust-pill">استشارة مباشرة</span>
         </div>
         <div className="inner-page__actions">
           <Link className="hero-btn hero-btn--primary" href="/offers">
@@ -248,21 +264,25 @@ export default function StorePage() {
       <section className="mt-4 rounded-2xl border border-orange-200 bg-gradient-to-l from-rose-50 via-orange-50 to-amber-50 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black text-orange-700">مختارات الاسبوع</p>
-            <h2 className="mt-1 text-xl font-black text-zinc-900">باقة العناية الكاملة بخصم 30%</h2>
+            <p className="text-xs font-black text-orange-700">رف الأسبوع</p>
+            <h2 className="mt-1 text-xl font-black text-zinc-900">مختارات عطرية بواجهة أكثر فخامة</h2>
           </div>
           <Link className="hero-btn hero-btn--primary" href="/offers">
-            فعّلي العرض
+            اكتشفي العروض
           </Link>
         </div>
       </section>
 
       <section className="product-grid" aria-label="منتجات المتجر">
-        {paginatedProducts.map((product) => (
-          <article key={product.id} className="product-card">
+        {paginatedProducts.map((product) => {
+          const cardImage = product.imageGallery?.[0] || product.imagePath;
+          const isInStock = product.stock > 0;
+
+          return (
+            <article key={product.id} className="product-card">
             <div className="product-card__image-wrap">
               <Image
-                src={product.imagePath}
+                src={cardImage}
                 alt={product.imageAlt}
                 width={520}
                 height={380}
@@ -274,21 +294,34 @@ export default function StorePage() {
             <span className="product-card__badge">{product.badge}</span>
             <h2 className="product-card__name">{product.name}</h2>
             <p className="product-card__category">{product.categoryLabel}</p>
-            <p className="mt-2 text-xs font-bold text-amber-700">تقييم العملاء: {product.rating} من 5</p>
-            <p className="mt-1 text-xs font-bold text-zinc-600">
-              {product.stock > 0 ? `متوفر (${product.stock})` : "غير متوفر حاليًا"}
-            </p>
+
+            <div className="product-card__meta-row">
+              <span className="product-card__meta-pill product-card__meta-pill--rating">
+                ⭐ {product.rating}
+              </span>
+              <span className={`product-card__meta-pill ${isInStock ? "product-card__meta-pill--stock" : "product-card__meta-pill--soldout"}`}>
+                {isInStock ? `متوفر ${product.stock}` : "نفد"}
+              </span>
+            </div>
+
+            <p className="product-card__desc">{product.shortDescription}</p>
+
             <div className="product-card__foot">
-              <p className="product-card__price">{formatPrice(product.price)}</p>
+              <div className="product-card__price-wrap">
+                <p className="product-card__price-label">السعر</p>
+                <p className="product-card__price">{formatPrice(product.price, currencySymbol)}</p>
+              </div>
               <div className="product-card__actions">
-                {product.stock > 0 ? <AddToCartButton className="product-card__cta" productId={product.id} /> : null}
-                <Link className="product-card__cta product-card__cta--ghost" href={`/store/${product.id}`}>
+                {isInStock ? <AddToCartButton className="product-card__cta product-card__cta--primary" productId={product.id} /> : null}
+                <WishlistToggle className="product-card__cta product-card__cta--ghost" productId={product.id} />
+                <Link className="product-card__cta product-card__cta--ghost product-card__cta--full" href={`/store/${product.id}`}>
                   التفاصيل
                 </Link>
               </div>
             </div>
           </article>
-        ))}
+          );
+        })}
       </section>
 
       <section className="mt-4 flex flex-wrap items-center justify-between gap-2">

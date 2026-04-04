@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 import ContactRequestForm from "@/components/contact-request-form";
 import { getProductById } from "@/data/products";
+import { readServerAdminState } from "@/lib/server-admin-db";
 
 type ContactPageProps = {
   searchParams: Promise<{
@@ -9,8 +11,15 @@ type ContactPageProps = {
 };
 
 export default async function ContactPage({ searchParams }: ContactPageProps) {
+  noStore();
   const { product } = await searchParams;
-  const selectedProduct = product ? getProductById(product) : null;
+  const state = await readServerAdminState();
+  const selectedProduct = product
+    ? state.products.find((item) => item.id === product) || getProductById(product)
+    : null;
+  const whatsappNumber = state.settings.whatsappNumber || "966500000000";
+  const supportEmail = state.settings.supportEmail || "support@siraljamal.sa";
+  const workingHoursLabel = state.settings.workingHoursLabel || "يوميًا من 10 صباحًا حتى 11 مساءً";
 
   return (
     <main className="inner-page site-shell" dir="rtl">
@@ -40,22 +49,22 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
       <section className="contact-grid">
         <article className="contact-card">
           <h2>واتساب الطلبات</h2>
-          <p>+966 50 000 0000</p>
-          <a className="contact-link" href="https://wa.me/966500000000" target="_blank" rel="noreferrer">
+          <p dir="ltr">+{whatsappNumber}</p>
+          <a className="contact-link" href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noreferrer">
             فتح واتساب
           </a>
         </article>
         <article className="contact-card">
           <h2>البريد الإلكتروني</h2>
-          <p>support@siraljamal.sa</p>
-          <a className="contact-link" href="mailto:support@siraljamal.sa">
+          <p>{supportEmail}</p>
+          <a className="contact-link" href={`mailto:${supportEmail}`}>
             ارسال بريد
           </a>
         </article>
         <article className="contact-card">
           <h2>ساعات العمل</h2>
-          <p>يوميًا من 10 صباحًا حتى 11 مساءً</p>
-          <a className="contact-link" href="tel:+966500000000">
+          <p>{workingHoursLabel}</p>
+          <a className="contact-link" href={`tel:+${whatsappNumber}`}>
             اتصال مباشر
           </a>
         </article>
@@ -84,6 +93,9 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
         </Link>
         <Link className="hero-btn hero-btn--secondary" href="/offers">
           مشاهدة العروض
+        </Link>
+        <Link className="hero-btn hero-btn--secondary" href="/track-order">
+          تتبع طلبك
         </Link>
       </div>
     </main>

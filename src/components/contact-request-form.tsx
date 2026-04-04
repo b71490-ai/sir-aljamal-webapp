@@ -3,15 +3,35 @@
 import { FormEvent, useMemo, useState } from "react";
 import { addAdminLead, getDashboardSettings } from "@/lib/admin-storage";
 import { pushAdminStateToServer } from "@/lib/admin-sync";
+import { getCustomerProfile, saveCustomerProfile } from "@/lib/storefront-storage";
+import { normalizeToEnglishDigits } from "@/lib/digits";
 
 type ContactRequestFormProps = {
   selectedProductName?: string;
 };
 
+function getInitialContactProfile() {
+  if (typeof window === "undefined") {
+    return {
+      name: "",
+      phone: "",
+      profileType: "",
+    };
+  }
+
+  const profile = getCustomerProfile();
+  return {
+    name: profile.name || "",
+    phone: profile.phone || "",
+    profileType: profile.city || "",
+  };
+}
+
 export default function ContactRequestForm({ selectedProductName }: ContactRequestFormProps) {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [profileType, setProfileType] = useState("");
+  const initialProfile = getInitialContactProfile();
+  const [name, setName] = useState(initialProfile.name);
+  const [phone, setPhone] = useState(initialProfile.phone);
+  const [profileType, setProfileType] = useState(initialProfile.profileType);
   const [notes, setNotes] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,7 +47,7 @@ export default function ContactRequestForm({ selectedProductName }: ContactReque
       setErrorMessage("يرجى إدخال الاسم.");
       return;
     }
-    if (!/^(\+966|966|0)?5\d{8}$/.test(phone.replace(/\s+/g, ""))) {
+    if (!/^(\+?967|0)?7\d{8}$/.test(normalizeToEnglishDigits(phone).replace(/\s+/g, ""))) {
       setErrorMessage("رقم الجوال غير صحيح.");
       return;
     }
@@ -42,6 +62,13 @@ export default function ContactRequestForm({ selectedProductName }: ContactReque
       priority,
       channel: "form",
       selectedProductName,
+    });
+
+    saveCustomerProfile({
+      ...getCustomerProfile(),
+      name,
+      phone,
+      city: getCustomerProfile().city,
     });
 
     setSuccessMessage(`تم تسجيل طلبك بنجاح. رقم التذكرة: ${lead.ticketNumber}`);
@@ -87,7 +114,7 @@ export default function ContactRequestForm({ selectedProductName }: ContactReque
         type="tel"
         placeholder="رقم الجوال"
         value={phone}
-        onChange={(event) => setPhone(event.target.value)}
+        onChange={(event) => setPhone(normalizeToEnglishDigits(event.target.value))}
         required
       />
       <input
