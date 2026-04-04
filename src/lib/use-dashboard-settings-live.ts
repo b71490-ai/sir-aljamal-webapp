@@ -6,6 +6,7 @@ import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 const FALLBACK_SETTINGS: DashboardSettings = {
   whatsappNumber: "966500000000",
   supportEmail: "support@siraljamal.sa",
+  brandLogoPath: "/brand/sir-aljamal-logo.svg",
   footerContactTitle: "أتيلية العطر",
   workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
   currencyCode: "SAR",

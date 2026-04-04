@@ -13,6 +13,7 @@ const paymentMethodSchema = z.object({
 export const settingsPatchSchema = z.object({
   whatsappNumber: z.string().max(30).optional(),
   supportEmail: z.string().email().max(160).optional(),
+  brandLogoPath: z.string().max(600000).optional(),
   footerContactTitle: z.string().max(120).optional(),
   workingHoursLabel: z.string().max(220).optional(),
   currencyCode: z.enum(["SAR", "YER", "USD"]).optional(),

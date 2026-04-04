@@ -11,6 +11,7 @@ function toPublicState(state: Awaited<ReturnType<typeof readServerAdminState>>) 
     settings: {
       whatsappNumber: state.settings.whatsappNumber,
       supportEmail: state.settings.supportEmail,
+      brandLogoPath: state.settings.brandLogoPath,
       footerContactTitle: state.settings.footerContactTitle,
       workingHoursLabel: state.settings.workingHoursLabel,
       currencyCode: state.settings.currencyCode,

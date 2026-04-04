@@ -65,20 +65,37 @@ body {
   display: inline-flex;
   flex-direction: column;
   line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.brand-block__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.brand-block__logo {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.6);
 }
 
 .brand-block__tag {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #d8b277;
+  margin-top: 0.08rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #e3c99c;
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .brand-block__name {
-  margin-top: 0.15rem;
   font-size: 1.1rem;
   font-weight: 900;
   color: #fff7ef;
+  white-space: nowrap;
 }
 
 .site-nav {
@@ -192,6 +209,21 @@ body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1080px) {
+  .brand-block__tag {
+    display: none;
+  }
+
+  .site-search {
+    max-width: 14rem;
+  }
+
+  .site-header__actions .site-btn--ghost {
+    display: none;
+  }
 }
 
 .site-btn {
@@ -959,6 +991,18 @@ body {
   font-size: 1.35rem;
   font-weight: 900;
   color: #fff4e5;
+}
+
+.site-footer__brand-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.site-footer__brand-logo {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
 }
 
 .site-footer__copy {
@@ -2397,10 +2441,6 @@ body {
     padding: 0.85rem 1.2rem;
   }
 
-  .site-nav {
-    display: inline-flex;
-  }
-
   .mobile-dock {
     display: none;
   }
@@ -2631,6 +2671,22 @@ body {
 }
 
 @media (min-width: 1200px) {
+  .site-nav {
+    display: inline-flex;
+  }
+
+  .brand-block__tag {
+    display: inline;
+  }
+
+  .site-search {
+    max-width: 20rem;
+  }
+
+  .site-header__actions .site-btn--ghost {
+    display: inline-flex;
+  }
+
   .product-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.62rem;

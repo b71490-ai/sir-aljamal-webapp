@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { unstable_noStore as noStore } from "next/cache";
 import FooterContactLive from "@/components/footer-contact-live";
 import { readServerAdminState } from "@/lib/server-admin-db";
@@ -19,6 +20,7 @@ export default async function SiteFooter() {
   const state = await readServerAdminState();
   const whatsappNumber = state.settings.whatsappNumber || "966500000000";
   const supportEmail = state.settings.supportEmail || "support@siraljamal.sa";
+  const brandLogoPath = state.settings.brandLogoPath || "/brand/sir-aljamal-logo.svg";
   const footerContactTitle = state.settings.footerContactTitle || "أتيلية العطر";
 
   return (
@@ -26,7 +28,19 @@ export default async function SiteFooter() {
       <div className="site-shell site-footer__inner">
         <section>
           <p className="site-footer__kicker">Luxury Fragrance House</p>
-          <h2 className="site-footer__title">سر الجمال</h2>
+          <h2 className="site-footer__title">
+            <span className="site-footer__brand-row">
+              <Image
+                src={brandLogoPath}
+                alt="شعار سر الجمال"
+                width={34}
+                height={34}
+                className="site-footer__brand-logo"
+                unoptimized
+              />
+              سر الجمال
+            </span>
+          </h2>
           <p className="site-footer__copy">
             دار عربية فاخرة للعطور والجمال تقدم تشكيلات مختارة، تغليف أنيق، وتجربة شراء تليق بذائقة راقية.
           </p>

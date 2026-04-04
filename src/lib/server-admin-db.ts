@@ -108,6 +108,7 @@ type ServerAdminAuditLog = {
 type ServerDashboardSettings = {
   whatsappNumber: string;
   supportEmail: string;
+  brandLogoPath: string;
   footerContactTitle: string;
   workingHoursLabel: string;
   currencyCode: "SAR" | "YER" | "USD";
@@ -240,6 +241,7 @@ function defaultState(): ServerAdminState {
     settings: {
       whatsappNumber: "966500000000",
       supportEmail: "support@siraljamal.sa",
+      brandLogoPath: "/brand/sir-aljamal-logo.svg",
       footerContactTitle: "أتيلية العطر",
       workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
       currencyCode: "SAR",

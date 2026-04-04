@@ -103,6 +103,7 @@ export type AdminAuditLog = {
 export type DashboardSettings = {
   whatsappNumber: string;
   supportEmail: string;
+  brandLogoPath: string;
   footerContactTitle: string;
   workingHoursLabel: string;
   currencyCode: "SAR" | "YER" | "USD";
@@ -147,6 +148,7 @@ const STORAGE_KEYS = {
 const DEFAULT_SETTINGS: DashboardSettings = {
   whatsappNumber: "966500000000",
   supportEmail: "support@siraljamal.sa",
+  brandLogoPath: "/brand/sir-aljamal-logo.svg",
   footerContactTitle: "أتيلية العطر",
   workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
   currencyCode: "SAR",
@@ -236,6 +238,27 @@ function sanitizeCurrencySymbol(symbol: unknown, code: DashboardSettings["curren
     return "$";
   }
   return "ر.س";
+}
+
+function sanitizeBrandLogoPath(value: unknown) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return DEFAULT_SETTINGS.brandLogoPath;
+  }
+
+  if (raw.startsWith("/")) {
+    return raw;
+  }
+
+  if (raw.startsWith("brand/")) {
+    return `/${raw}`;
+  }
+
+  if (raw.startsWith("data:image/")) {
+    return raw;
+  }
+
+  return DEFAULT_SETTINGS.brandLogoPath;
 }
 
 const DEFAULT_OFFERS: AdminOffer[] = [
@@ -604,6 +627,7 @@ export function getDashboardSettings(): DashboardSettings {
   return {
     whatsappNumber: settings.whatsappNumber || DEFAULT_SETTINGS.whatsappNumber,
     supportEmail: String(settings.supportEmail || DEFAULT_SETTINGS.supportEmail).trim() || DEFAULT_SETTINGS.supportEmail,
+    brandLogoPath: sanitizeBrandLogoPath(settings.brandLogoPath),
     footerContactTitle: String(settings.footerContactTitle || DEFAULT_SETTINGS.footerContactTitle).trim() || DEFAULT_SETTINGS.footerContactTitle,
     workingHoursLabel: String(settings.workingHoursLabel || DEFAULT_SETTINGS.workingHoursLabel).trim() || DEFAULT_SETTINGS.workingHoursLabel,
     currencyCode,
@@ -644,6 +668,7 @@ export function saveDashboardSettings(settings: DashboardSettings) {
   const normalized = {
     whatsappNumber: normalizeToEnglishDigits(settings.whatsappNumber).replace(/\D/g, "") || DEFAULT_SETTINGS.whatsappNumber,
     supportEmail: String(settings.supportEmail || DEFAULT_SETTINGS.supportEmail).trim() || DEFAULT_SETTINGS.supportEmail,
+    brandLogoPath: sanitizeBrandLogoPath(settings.brandLogoPath),
     footerContactTitle: String(settings.footerContactTitle || DEFAULT_SETTINGS.footerContactTitle).trim() || DEFAULT_SETTINGS.footerContactTitle,
     workingHoursLabel: String(settings.workingHoursLabel || DEFAULT_SETTINGS.workingHoursLabel).trim() || DEFAULT_SETTINGS.workingHoursLabel,
     currencyCode,

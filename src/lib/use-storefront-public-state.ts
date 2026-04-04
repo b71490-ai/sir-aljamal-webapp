@@ -11,6 +11,7 @@ const POLL_MS = 8000;
 type PublicSettings = Pick<DashboardSettings,
   | "whatsappNumber"
   | "supportEmail"
+  | "brandLogoPath"
   | "footerContactTitle"
   | "workingHoursLabel"
   | "currencyCode"
@@ -41,6 +42,7 @@ type PublicStateResponse = {
 const FALLBACK_SETTINGS: PublicSettings = {
   whatsappNumber: "966500000000",
   supportEmail: "support@siraljamal.sa",
+  brandLogoPath: "/brand/sir-aljamal-logo.svg",
   footerContactTitle: "أتيلية العطر",
   workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
   currencyCode: "SAR",
@@ -75,9 +77,19 @@ function sanitizeSettings(value: unknown): PublicSettings {
   }
 
   const settings = value as Partial<PublicSettings>;
+  const rawLogoPath = String(settings.brandLogoPath || "").trim();
+  const brandLogoPath = rawLogoPath.startsWith("/")
+    ? rawLogoPath
+    : rawLogoPath.startsWith("brand/")
+      ? `/${rawLogoPath}`
+      : rawLogoPath.startsWith("data:image/")
+        ? rawLogoPath
+      : FALLBACK_SETTINGS.brandLogoPath;
+
   return {
     whatsappNumber: String(settings.whatsappNumber || FALLBACK_SETTINGS.whatsappNumber).replace(/\D/g, "") || FALLBACK_SETTINGS.whatsappNumber,
     supportEmail: String(settings.supportEmail || FALLBACK_SETTINGS.supportEmail).trim() || FALLBACK_SETTINGS.supportEmail,
+    brandLogoPath,
     footerContactTitle: String(settings.footerContactTitle || FALLBACK_SETTINGS.footerContactTitle).trim() || FALLBACK_SETTINGS.footerContactTitle,
     workingHoursLabel: String(settings.workingHoursLabel || FALLBACK_SETTINGS.workingHoursLabel).trim() || FALLBACK_SETTINGS.workingHoursLabel,
     currencyCode: settings.currencyCode === "USD" || settings.currencyCode === "YER" || settings.currencyCode === "SAR"

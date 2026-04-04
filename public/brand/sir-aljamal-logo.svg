@@ -1,0 +1,17 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<defs>
+		<linearGradient id="gold" x1="40" y1="24" x2="200" y2="216" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#FBE8A6"/>
+			<stop offset="0.42" stop-color="#D6A94E"/>
+			<stop offset="1" stop-color="#9C6D1D"/>
+		</linearGradient>
+	</defs>
+	<circle cx="120" cy="120" r="112" fill="#101010"/>
+	<circle cx="120" cy="120" r="102" stroke="url(#gold)" stroke-width="4"/>
+	<path d="M85 150C93 132 102 118 116 104C129 91 146 80 166 78" stroke="url(#gold)" stroke-width="7" stroke-linecap="round"/>
+	<path d="M81 144C95 157 112 163 132 163C149 163 163 159 177 150" stroke="url(#gold)" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+	<circle cx="172" cy="73" r="3" fill="#F4D78D"/>
+	<circle cx="177" cy="67" r="1.5" fill="#F4D78D"/>
+	<text x="120" y="189" text-anchor="middle" fill="#F4D78D" font-size="28" font-weight="700" font-family="'Noto Naskh Arabic', serif">سر الجمال</text>
+	<text x="120" y="208" text-anchor="middle" fill="#E8C874" font-size="11" font-weight="600" font-family="'Times New Roman', serif" letter-spacing="2">BEAUTY STORE</text>
+</svg>

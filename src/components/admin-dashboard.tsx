@@ -711,6 +711,48 @@ export default function AdminDashboard({ role }: AdminDashboardProps) {
     }
   }
 
+  async function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file || !file.type.startsWith("image/")) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("logo", file);
+
+      const response = await fetch("/api/admin/logo-upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        setNotice("تعذر رفع الشعار. تأكدي من تسجيل الدخول كمسؤولة.");
+        window.setTimeout(() => setNotice(""), 1800);
+        return;
+      }
+
+      const payload = (await response.json()) as { ok?: boolean; path?: string };
+      const logoPath = String(payload.path || "").trim();
+      if (!payload.ok || !logoPath.startsWith("/")) {
+        setNotice("تعذر حفظ الشعار المرفوع.");
+        window.setTimeout(() => setNotice(""), 1800);
+        return;
+      }
+
+      setSettings((prev) => ({
+        ...prev,
+        brandLogoPath: logoPath,
+      }));
+      setSuccess("تم اختيار الشعار من الملفات");
+    } catch {
+      setNotice("تعذر قراءة ملف الشعار. جربي صورة بصيغة أخرى.");
+      window.setTimeout(() => setNotice(""), 1800);
+    }
+  }
+
   function handleImageDrop(productId: string, event: DragEvent<HTMLDivElement>) {
     event.preventDefault();
     setDraggingProductId(null);
@@ -1824,6 +1866,39 @@ export default function AdminDashboard({ role }: AdminDashboardProps) {
               }
             />
           </label>
+
+          <div className="admin-field lg:col-span-2">
+            <span>شعار الموقع (من الملفات)</span>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={settings.brandLogoPath || "/brand/sir-aljamal-logo.svg"}
+                alt="معاينة الشعار"
+                className="h-14 w-14 rounded-full border border-zinc-200 bg-white object-cover"
+              />
+              <label className="hero-btn hero-btn--secondary">
+                اختيار شعار من الملفات
+                <input
+                  className="admin-upload-dropzone__input"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => void handleLogoFileChange(event)}
+                />
+              </label>
+              <button
+                className="hero-btn hero-btn--secondary"
+                type="button"
+                onClick={() =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    brandLogoPath: "/brand/sir-aljamal-logo.svg",
+                  }))
+                }
+              >
+                إعادة للشعار الافتراضي
+              </button>
+            </div>
+          </div>
 
           <label className="admin-field">
             <span>عنوان قسم التواصل في الفوتر</span>

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
 import SiteSearch from "@/components/site-search";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
 
 const NAV_ITEMS = [
   { href: "/", label: "الرئيسية" },
@@ -20,6 +22,8 @@ const NAV_ITEMS = [
 export default function SiteHeader() {
   const pathname = usePathname();
   const { totalItems } = useCart();
+  const settings = useDashboardSettingsLive();
+  const brandLogoPath = settings.brandLogoPath || "/brand/sir-aljamal-logo.svg";
 
   const isActive = (href: string) => {
     if (href === "/") {
@@ -32,8 +36,19 @@ export default function SiteHeader() {
     <header className="site-header" dir="rtl">
       <div className="site-shell site-header__inner">
         <Link className="brand-block" href="/" aria-label="سر الجمال">
-          <span className="brand-block__tag">Maison De Beauty</span>
-          <strong className="brand-block__name">سر الجمال</strong>
+          <span className="brand-block__row">
+            <Image
+              src={brandLogoPath}
+              alt="شعار سر الجمال"
+              width={36}
+              height={36}
+              className="brand-block__logo"
+              priority
+              unoptimized
+            />
+            <strong className="brand-block__name">سر الجمال</strong>
+          </span>
+          <span className="brand-block__tag">Luxury Fragrance House</span>
         </Link>
 
         <nav className="site-nav" aria-label="التنقل الرئيسي">
