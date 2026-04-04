@@ -9,6 +9,7 @@ import { pushAdminStateToServer } from "@/lib/admin-sync";
 import { addLoyaltyPoints, getCustomerProfile, saveCustomerProfile, type CustomerAddress } from "@/lib/storefront-storage";
 import { normalizeToEnglishDigits } from "@/lib/digits";
 import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 function formatPrice(price: number, currencySymbol: string) {
   return `${price} ${currencySymbol}`;
@@ -66,6 +67,7 @@ export default function CheckoutView() {
   const [formError, setFormError] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
   const settings = useDashboardSettingsLive();
+  const storefrontState = useStorefrontPublicState();
   const whatsappNumber = settings.whatsappNumber;
 
   const availablePaymentMethods = settings.paymentMethods.filter((method) => method.isEnabled);
@@ -135,9 +137,9 @@ export default function CheckoutView() {
     category: item.product.category,
   }));
 
-  const autoOfferResult = calculateAutoOfferDiscount(offerLines, subtotal);
+  const autoOfferResult = calculateAutoOfferDiscount(offerLines, subtotal, storefrontState.offers);
 
-  const matchedCouponOffer = appliedCouponCode ? findCouponOffer(appliedCouponCode) : null;
+  const matchedCouponOffer = appliedCouponCode ? findCouponOffer(appliedCouponCode, storefrontState.offers) : null;
   const couponAllowed = matchedCouponOffer
     ? subtotal >= (matchedCouponOffer.rule.minSubtotal || 0)
     : false;
@@ -180,7 +182,7 @@ export default function CheckoutView() {
 
   function applyCoupon() {
     const normalized = couponCode.trim().toUpperCase();
-    const offer = findCouponOffer(normalized);
+    const offer = findCouponOffer(normalized, storefrontState.offers);
     if (!offer) {
       setFormError("الكوبون غير صالح أو منتهي.");
       setAppliedCouponCode("");

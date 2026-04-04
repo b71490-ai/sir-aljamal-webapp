@@ -6,7 +6,8 @@ import { useMemo, useState } from "react";
 import AddToCartButton from "@/components/add-to-cart-button";
 import WishlistToggle from "@/components/wishlist-toggle";
 import { CATEGORY_LABELS, type ProductCategory } from "@/data/products";
-import { getAdminProducts, getDashboardSettings, type AdminProduct } from "@/lib/admin-storage";
+import type { AdminProduct } from "@/lib/admin-storage";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 const CATEGORY_KEYS = Object.keys(CATEGORY_LABELS) as ProductCategory[];
 const PAGE_SIZE = 6;
@@ -47,10 +48,9 @@ export default function StorePage() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [products] = useState<AdminProduct[]>(() =>
-    typeof window === "undefined" ? [] : getAdminProducts(),
-  );
-  const [currencySymbol] = useState(() => (typeof window === "undefined" ? "ر.س" : getDashboardSettings().currencySymbol));
+  const storefrontState = useStorefrontPublicState();
+  const products: AdminProduct[] = storefrontState.products;
+  const currencySymbol = storefrontState.settings.currencySymbol;
 
   const filteredProducts = useMemo(() => {
     const min = Number(minPrice) || 0;

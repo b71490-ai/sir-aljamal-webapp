@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getActiveOffers, getSecondsLeft } from "@/data/offers";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 function formatCountdown(seconds: number) {
   const hours = Math.floor(seconds / 3600);
@@ -15,13 +16,14 @@ function formatCountdown(seconds: number) {
 
 export default function OffersPage() {
   const [now, setNow] = useState(new Date());
+  const storefrontState = useStorefrontPublicState();
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const offers = useMemo(() => getActiveOffers(now), [now]);
+  const offers = useMemo(() => getActiveOffers(now, storefrontState.offers), [now, storefrontState.offers]);
   const nearestExpiry = offers[0]?.expiresAt;
   const activeCoupons = offers.filter((offer) => offer.couponCode).map((offer) => offer.couponCode);
 

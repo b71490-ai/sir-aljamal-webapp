@@ -86,9 +86,10 @@ function getSourceOffers(): Offer[] {
   }
 }
 
-export function getActiveOffers(now = new Date()): Offer[] {
+export function getActiveOffers(now = new Date(), sourceOffers?: Offer[]): Offer[] {
   const ts = now.getTime();
-  return getSourceOffers().filter((offer) => offer.isEnabled !== false && Number(new Date(offer.expiresAt)) > ts);
+  const offers = sourceOffers && sourceOffers.length > 0 ? sourceOffers : getSourceOffers();
+  return offers.filter((offer) => offer.isEnabled !== false && Number(new Date(offer.expiresAt)) > ts);
 }
 
 export function getSecondsLeft(expiresAt: string, now = new Date()): number {
@@ -119,12 +120,16 @@ function matchesRule(lines: CartLineForOffer[], subtotal: number, rule: OfferRul
   return true;
 }
 
-export function calculateAutoOfferDiscount(lines: CartLineForOffer[], subtotal: number): {
+export function calculateAutoOfferDiscount(
+  lines: CartLineForOffer[],
+  subtotal: number,
+  sourceOffers?: Offer[],
+): {
   discount: number;
   offer: Offer | null;
   freeShipping: boolean;
 } {
-  const active = getActiveOffers();
+  const active = getActiveOffers(new Date(), sourceOffers);
   const discountCandidates = active
     .filter((offer) => matchesRule(lines, subtotal, offer.rule))
     .map((offer) => {
@@ -145,14 +150,14 @@ export function calculateAutoOfferDiscount(lines: CartLineForOffer[], subtotal: 
   };
 }
 
-export function findCouponOffer(code: string): Offer | null {
+export function findCouponOffer(code: string, sourceOffers?: Offer[]): Offer | null {
   const normalized = code.trim().toUpperCase();
-  const active = getActiveOffers();
+  const active = getActiveOffers(new Date(), sourceOffers);
   return active.find((offer) => offer.couponCode === normalized) ?? null;
 }
 
-export function getFeaturedOfferProducts(limit = 4) {
-  const activeOffers = getActiveOffers();
+export function getFeaturedOfferProducts(limit = 4, sourceOffers?: Offer[]) {
+  const activeOffers = getActiveOffers(new Date(), sourceOffers);
   const categories = activeOffers.map((offer) => offer.rule.category).filter(Boolean) as ProductCategory[];
   const featured = PRODUCTS.filter((product) => categories.includes(product.category));
   return featured.slice(0, limit);

@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAdminProducts, getDashboardSettings } from "@/lib/admin-storage";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 export default function SiteSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [products] = useState(() => (typeof window === "undefined" ? [] : getAdminProducts()));
-  const [currencySymbol] = useState(() => (typeof window === "undefined" ? "ر.س" : getDashboardSettings().currencySymbol));
+  const storefrontState = useStorefrontPublicState();
+  const products = storefrontState.products;
+  const currencySymbol = storefrontState.settings.currencySymbol;
 
   const results = useMemo(() => {
     const normalized = query.trim().toLowerCase();

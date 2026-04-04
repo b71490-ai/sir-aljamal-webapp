@@ -7,12 +7,11 @@ import {
   buildDashboardInsights,
   getAdminLeads,
   getAdminOrders,
-  getAdminProducts,
 } from "@/lib/admin-storage";
 import { getActiveOffers } from "@/data/offers";
-import { PRODUCTS } from "@/data/products";
 import { getLoyaltyPoints } from "@/lib/storefront-storage";
 import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 function formatPrice(price: number, currencySymbol: string) {
   return `${price} ${currencySymbol}`;
@@ -28,11 +27,8 @@ function useHydrated() {
 
 export default function Home() {
   const hydrated = useHydrated();
-  const fallbackProducts = useMemo(
-    () => PRODUCTS.map((item) => ({ ...item, stock: 10, sales: 0, isActive: true, sku: "", updatedAt: "" })),
-    [],
-  );
-  const products = useMemo(() => (hydrated ? getAdminProducts() : fallbackProducts), [hydrated, fallbackProducts]);
+  const storefrontState = useStorefrontPublicState();
+  const products = storefrontState.products;
   const orders = useMemo(() => (hydrated ? getAdminOrders() : []), [hydrated]);
   const leads = useMemo(() => (hydrated ? getAdminLeads() : []), [hydrated]);
   const settings = useDashboardSettingsLive();
@@ -42,7 +38,7 @@ export default function Home() {
     () => buildDashboardInsights(products, orders, leads, settings),
     [products, orders, leads, settings],
   );
-  const activeOffers = useMemo(() => getActiveOffers(), []);
+  const activeOffers = useMemo(() => getActiveOffers(new Date(), storefrontState.offers), [storefrontState.offers]);
   const featuredProducts = useMemo(() => {
     const targetCategories = activeOffers
       .map((offer) => offer.rule.category)
