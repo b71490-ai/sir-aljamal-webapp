@@ -135,6 +135,10 @@ const DEFAULT_DATA_DIR = path.join(/*turbopackIgnore: true*/ process.cwd(), "dat
 const SUPABASE_TABLE = process.env.SUPABASE_ADMIN_STATE_TABLE || "admin_state";
 const SUPABASE_ROW_ID = "default";
 
+function resolveFallbackDbPath() {
+  return path.join(DEFAULT_DATA_DIR, "admin-db.json");
+}
+
 export type AdminPersistenceHealth = {
   mode: "supabase" | "file";
   supabaseConfigured: boolean;
@@ -161,7 +165,7 @@ function resolveDbPath() {
       ? configuredPath
       : path.join(/*turbopackIgnore: true*/ process.cwd(), configuredPath);
   }
-  return path.join(DEFAULT_DATA_DIR, "admin-db.json");
+  return resolveFallbackDbPath();
 }
 
 function resolveDbDir(dbPath: string) {
@@ -290,6 +294,10 @@ function defaultState(): ServerAdminState {
 
 async function ensureDbFile() {
   const dbPath = resolveDbPath();
+  return ensureDbFileAtPath(dbPath);
+}
+
+async function ensureDbFileAtPath(dbPath: string) {
   const dbDir = resolveDbDir(dbPath);
 
   await mkdir(dbDir, { recursive: true });
@@ -297,6 +305,23 @@ async function ensureDbFile() {
     await readFile(dbPath, "utf8");
   } catch {
     await writeFile(dbPath, JSON.stringify(defaultState(), null, 2), "utf8");
+  }
+
+  return dbPath;
+}
+
+async function resolveUsableDbPath() {
+  const primaryPath = resolveDbPath();
+
+  try {
+    return await ensureDbFileAtPath(primaryPath);
+  } catch {
+    const fallbackPath = resolveFallbackDbPath();
+    if (fallbackPath === primaryPath) {
+      throw new Error(`Unable to initialize admin db at ${primaryPath}`);
+    }
+
+    return ensureDbFileAtPath(fallbackPath);
   }
 }
 
@@ -400,8 +425,7 @@ export async function readServerAdminState(): Promise<ServerAdminState> {
     }
   }
 
-  await ensureDbFile();
-  const dbPath = resolveDbPath();
+  const dbPath = await resolveUsableDbPath();
   const raw = await readFile(dbPath, "utf8");
 
   try {
@@ -431,8 +455,7 @@ export async function writeServerAdminState(state: ServerAdminState): Promise<vo
     }
   }
 
-  await ensureDbFile();
-  const dbPath = resolveDbPath();
+  const dbPath = await resolveUsableDbPath();
   await writeFile(dbPath, JSON.stringify(state, null, 2), "utf8");
 }
 
