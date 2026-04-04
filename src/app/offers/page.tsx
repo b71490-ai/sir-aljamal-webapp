@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getActiveOffers, getSecondsLeft } from "@/data/offers";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 function formatCountdown(seconds: number) {
@@ -15,15 +16,17 @@ function formatCountdown(seconds: number) {
 }
 
 export default function OffersPage() {
+  const hydrated = useHydrated();
   const [now, setNow] = useState(new Date());
   const storefrontState = useStorefrontPublicState();
+  const referenceDate = hydrated ? now : null;
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const offers = useMemo(() => getActiveOffers(now, storefrontState.offers), [now, storefrontState.offers]);
+  const offers = useMemo(() => (referenceDate ? getActiveOffers(referenceDate, storefrontState.offers) : []), [referenceDate, storefrontState.offers]);
   const nearestExpiry = offers[0]?.expiresAt;
   const activeCoupons = offers.filter((offer) => offer.couponCode).map((offer) => offer.couponCode);
 
@@ -35,7 +38,7 @@ export default function OffersPage() {
         <p className="inner-page__desc">استفيدي من أقوى الخصومات قبل انتهاء الوقت المحدد لكل عرض.</p>
         {nearestExpiry ? (
           <p className="mt-3 inline-flex rounded-full border border-orange-300 bg-orange-50 px-3 py-1 text-sm font-black text-orange-700">
-            الوقت المتبقي لأقرب عرض: {formatCountdown(getSecondsLeft(nearestExpiry, now))}
+            الوقت المتبقي لأقرب عرض: {referenceDate ? formatCountdown(getSecondsLeft(nearestExpiry, referenceDate)) : "00:00:00"}
           </p>
         ) : null}
         <div className="inner-page__actions">
@@ -84,7 +87,7 @@ export default function OffersPage() {
             <h2 className="offer-card__title">{offer.title} • {offer.badge}</h2>
             <p className="offer-card__desc">{offer.details}</p>
             <p className="text-xs font-black text-orange-700">
-              ينتهي خلال: {formatCountdown(getSecondsLeft(offer.expiresAt, now))}
+              ينتهي خلال: {referenceDate ? formatCountdown(getSecondsLeft(offer.expiresAt, referenceDate)) : "00:00:00"}
             </p>
             {offer.couponCode ? (
               <p className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs font-black text-zinc-700">

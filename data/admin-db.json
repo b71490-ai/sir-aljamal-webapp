@@ -1,6 +1,6 @@
 {
-  "revision": 30,
-  "updatedAt": "2026-04-03T17:28:13.539Z",
+  "revision": 33,
+  "updatedAt": "2026-04-04T16:33:43.031Z",
   "products": [
     {
       "id": "vitamin-c-serum",
@@ -263,9 +263,26 @@
         "instructions": "يمكنك التحويل من تطبيق الكريمي أو أي فرع ثم تدوين رقم الحوالة في الحقل المخصص.",
         "isEnabled": true
       }
-    ]
+    ],
+    "brandLogoPath": "/uploads/logos/logo-1775318791591-3451fdfc.png"
   },
   "auditLogs": [
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775318801476-825",
+      "createdAt": "2026-04-04T16:06:41.476Z"
+    },
+    {
+      "actor": "owner",
+      "action": "save_settings",
+      "entityType": "settings",
+      "details": "تم تحديث إعدادات النظام",
+      "id": "LOG-1775318797493-814",
+      "createdAt": "2026-04-04T16:06:37.493Z"
+    },
     {
       "actor": "owner",
       "action": "save_settings",

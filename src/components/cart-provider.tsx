@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useCallback } from "react";
 import { getAdminProductById } from "@/lib/admin-storage";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type CartItem = {
   productId: string;
@@ -30,6 +31,7 @@ function sanitizeItems(items: CartItem[]) {
 }
 
 export default function CartProvider({ children }: { children: React.ReactNode }) {
+  const hydrated = useHydrated();
   const [items, setItems] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") {
       return [];
@@ -46,6 +48,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
       return [];
     }
   });
+  const visibleItems = useMemo(() => (hydrated ? items : []), [hydrated, items]);
 
   useEffect(() => {
     window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
@@ -91,25 +94,25 @@ export default function CartProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const totalItems = useMemo(
-    () => items.reduce((acc, item) => acc + item.quantity, 0),
-    [items],
+    () => visibleItems.reduce((acc, item) => acc + item.quantity, 0),
+    [visibleItems],
   );
 
   const subtotal = useMemo(
     () =>
-      items.reduce((acc, item) => {
+      visibleItems.reduce((acc, item) => {
         const product = getAdminProductById(item.productId);
         if (!product) {
           return acc;
         }
         return acc + product.price * item.quantity;
       }, 0),
-    [items],
+    [visibleItems],
   );
 
   const value = useMemo<CartContextValue>(
     () => ({
-      items,
+      items: visibleItems,
       totalItems,
       subtotal,
       addToCart,
@@ -117,7 +120,7 @@ export default function CartProvider({ children }: { children: React.ReactNode }
       updateQuantity,
       clearCart,
     }),
-    [addToCart, clearCart, items, removeFromCart, subtotal, totalItems, updateQuantity],
+    [addToCart, clearCart, removeFromCart, subtotal, totalItems, updateQuantity, visibleItems],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

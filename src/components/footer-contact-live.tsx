@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
 
 type FooterContactLiveProps = {
@@ -24,15 +25,24 @@ export default function FooterContactLive({
   initialSupportEmail,
   initialFooterContactTitle,
 }: FooterContactLiveProps) {
+  const hydrated = useHydrated();
   const settings = useDashboardSettingsLive({
     whatsappNumber: initialWhatsappNumber,
     supportEmail: initialSupportEmail,
     footerContactTitle: initialFooterContactTitle,
   });
 
-  const whatsappNumber = normalizeWhatsapp(settings.whatsappNumber, initialWhatsappNumber);
-  const supportEmail = normalizeText(settings.supportEmail, initialSupportEmail);
-  const footerContactTitle = normalizeText(settings.footerContactTitle, initialFooterContactTitle);
+  const source = hydrated
+    ? settings
+    : {
+        whatsappNumber: initialWhatsappNumber,
+        supportEmail: initialSupportEmail,
+        footerContactTitle: initialFooterContactTitle,
+      };
+
+  const whatsappNumber = normalizeWhatsapp(source.whatsappNumber, initialWhatsappNumber);
+  const supportEmail = normalizeText(source.supportEmail, initialSupportEmail);
+  const footerContactTitle = normalizeText(source.footerContactTitle, initialFooterContactTitle);
 
   const phoneHref = useMemo(() => `tel:+${whatsappNumber}`, [whatsappNumber]);
   const emailHref = useMemo(() => `mailto:${supportEmail}`, [supportEmail]);

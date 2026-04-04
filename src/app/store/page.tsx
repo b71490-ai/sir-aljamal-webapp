@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AddToCartButton from "@/components/add-to-cart-button";
 import WishlistToggle from "@/components/wishlist-toggle";
 import { CATEGORY_LABELS, type ProductCategory } from "@/data/products";
@@ -12,35 +12,13 @@ import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 const CATEGORY_KEYS = Object.keys(CATEGORY_LABELS) as ProductCategory[];
 const PAGE_SIZE = 6;
 
-function getInitialStoreFilters(): { query: string; category: ProductCategory | "all" } {
-  if (typeof window === "undefined") {
-    return {
-      query: "",
-      category: "all" as ProductCategory | "all",
-    };
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  const categoryFromUrl = params.get("category");
-  const queryFromUrl = params.get("query") || "";
-  const initialCategory = CATEGORY_KEYS.includes(categoryFromUrl as ProductCategory)
-    ? (categoryFromUrl as ProductCategory)
-    : "all";
-
-  return {
-    query: queryFromUrl,
-    category: initialCategory,
-  };
-}
-
 function formatPrice(price: number, currencySymbol: string) {
   return `${price} ${currencySymbol}`;
 }
 
 export default function StorePage() {
-  const initialFilters = getInitialStoreFilters();
-  const [query, setQuery] = useState(initialFilters.query);
-  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all">(initialFilters.category);
+  const [query, setQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all">("all");
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating" | "newest">("featured");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -51,6 +29,18 @@ export default function StorePage() {
   const storefrontState = useStorefrontPublicState();
   const products: AdminProduct[] = storefrontState.products;
   const currencySymbol = storefrontState.settings.currencySymbol;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const categoryFromUrl = params.get("category");
+    const queryFromUrl = params.get("query") || "";
+    const nextCategory = CATEGORY_KEYS.includes(categoryFromUrl as ProductCategory)
+      ? (categoryFromUrl as ProductCategory)
+      : "all";
+
+    setQuery(queryFromUrl);
+    setSelectedCategory(nextCategory);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     const min = Number(minPrice) || 0;

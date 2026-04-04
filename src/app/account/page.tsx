@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getAdminOrders, getDashboardSettings } from "@/lib/admin-storage";
+import { useHydrated } from "@/lib/use-hydrated";
 import {
   getCustomerProfile,
   getLoyaltyPoints,
@@ -22,7 +23,16 @@ function formatPrice(price: number, currencySymbol: string) {
   return `${Math.round(price)} ${currencySymbol}`;
 }
 
+const EMPTY_PROFILE: CustomerProfile = {
+  name: "",
+  phone: "",
+  city: "",
+  preferredContact: "whatsapp",
+  addresses: [],
+};
+
 export default function AccountPage() {
+  const hydrated = useHydrated();
   const [profile, setProfile] = useState<CustomerProfile>(() => getCustomerProfile());
   const [loyaltyPoints, setLoyaltyPoints] = useState(() => getLoyaltyPoints());
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -30,6 +40,10 @@ export default function AccountPage() {
   const [message, setMessage] = useState("");
   const [orders] = useState(() => getAdminOrders());
   const [currencySymbol] = useState(() => getDashboardSettings().currencySymbol);
+  const visibleProfile = hydrated ? profile : EMPTY_PROFILE;
+  const visibleLoyaltyPoints = hydrated ? loyaltyPoints : 0;
+  const visibleWishlistCount = hydrated ? wishlistCount : 0;
+  const visibleCurrencySymbol = hydrated ? currencySymbol : "ر.س";
 
   useEffect(() => {
     const sync = () => {
@@ -44,13 +58,13 @@ export default function AccountPage() {
   }, []);
 
   const matchedOrders = useMemo(() => {
-    const phone = normalizePhone(profile.phone);
+    const phone = normalizePhone(visibleProfile.phone);
     if (!phone) {
       return [];
     }
 
     return orders.filter((order) => normalizePhone(order.phone) === phone).slice(0, 8);
-  }, [orders, profile.phone]);
+  }, [orders, visibleProfile.phone]);
 
   function persistProfile(next: CustomerProfile, success: string) {
     const saved = saveCustomerProfile(next);
@@ -95,11 +109,11 @@ export default function AccountPage() {
 
       <section className="info-strip" aria-label="ملخص الحساب">
         <article className="info-strip__card">
-          <p className="info-strip__value">{loyaltyPoints}</p>
+          <p className="info-strip__value">{visibleLoyaltyPoints}</p>
           <p className="info-strip__label">نقطة ولاء</p>
         </article>
         <article className="info-strip__card">
-          <p className="info-strip__value">{wishlistCount}</p>
+          <p className="info-strip__value">{visibleWishlistCount}</p>
           <p className="info-strip__label">في المفضلة</p>
         </article>
         <article className="info-strip__card">
@@ -114,10 +128,10 @@ export default function AccountPage() {
         <article className="product-detail-card">
           <h2>بياناتك الأساسية</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <input className="form-input" type="text" placeholder="الاسم" value={profile.name} onChange={(event) => setProfile((prev) => ({ ...prev, name: event.target.value }))} />
-            <input className="form-input" type="tel" placeholder="رقم الجوال" value={profile.phone} onChange={(event) => setProfile((prev) => ({ ...prev, phone: normalizeToEnglishDigits(event.target.value) }))} />
-            <input className="form-input" type="text" placeholder="المدينة الافتراضية" value={profile.city} onChange={(event) => setProfile((prev) => ({ ...prev, city: event.target.value }))} />
-            <select className="form-input" value={profile.preferredContact} onChange={(event) => setProfile((prev) => ({ ...prev, preferredContact: event.target.value as "whatsapp" | "phone" }))}>
+            <input className="form-input" type="text" placeholder="الاسم" value={visibleProfile.name} onChange={(event) => setProfile((prev) => ({ ...prev, name: event.target.value }))} />
+            <input className="form-input" type="tel" placeholder="رقم الجوال" value={visibleProfile.phone} onChange={(event) => setProfile((prev) => ({ ...prev, phone: normalizeToEnglishDigits(event.target.value) }))} />
+            <input className="form-input" type="text" placeholder="المدينة الافتراضية" value={visibleProfile.city} onChange={(event) => setProfile((prev) => ({ ...prev, city: event.target.value }))} />
+            <select className="form-input" value={visibleProfile.preferredContact} onChange={(event) => setProfile((prev) => ({ ...prev, preferredContact: event.target.value as "whatsapp" | "phone" }))}>
               <option value="whatsapp">واتساب</option>
               <option value="phone">اتصال</option>
             </select>
@@ -142,11 +156,11 @@ export default function AccountPage() {
 
       <section className="product-detail-card mt-4">
         <h2>العناوين المحفوظة</h2>
-        {profile.addresses.length === 0 ? (
+        {visibleProfile.addresses.length === 0 ? (
           <p className="admin-muted mt-3">لا توجد عناوين محفوظة بعد.</p>
         ) : (
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {profile.addresses.map((address) => (
+            {visibleProfile.addresses.map((address) => (
               <article key={address.id} className="rounded-2xl border border-zinc-200 bg-white p-4">
                 <p className="text-sm font-black text-zinc-900">{address.label}</p>
                 <p className="mt-2 text-sm text-zinc-700">{address.city}</p>
@@ -169,7 +183,7 @@ export default function AccountPage() {
               <article key={order.id} className="rounded-2xl border border-zinc-200 bg-white p-4">
                 <p className="text-sm font-black text-zinc-900">{order.id}</p>
                 <p className="mt-1 text-xs text-zinc-600">{order.city}</p>
-                <p className="mt-2 text-xs font-black text-orange-700">{formatPrice(order.total, currencySymbol)}</p>
+                <p className="mt-2 text-xs font-black text-orange-700">{formatPrice(order.total, visibleCurrencySymbol)}</p>
                 <Link className="mini-link mt-3" href="/track-order">تتبع الطلب</Link>
               </article>
             ))}

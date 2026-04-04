@@ -4,6 +4,7 @@
     "supabase/admin_state.sql": "postgres",
     "supabase/*.sql": "postgres"
   },
+  "css.lint.unknownAtRules": "ignore",
   "mssql.intelliSense.enableIntelliSense": false,
   "mssql.intelliSense.enableErrorChecking": false,
   "mssql.autoDisableNonTSqlLanguageService": true

@@ -5,7 +5,10 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import AddToCartButton from "@/components/add-to-cart-button";
 import WishlistToggle from "@/components/wishlist-toggle";
-import { getAdminProducts, getDashboardSettings, type AdminProduct } from "@/lib/admin-storage";
+import type { AdminProduct } from "@/lib/admin-storage";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
+import { useHydrated } from "@/lib/use-hydrated";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 import {
   addProductReview,
   getProductReviews,
@@ -34,9 +37,10 @@ function formatPrice(price: number, currencySymbol: string) {
 }
 
 export default function ProductDetailsView({ productId }: ProductDetailsViewProps) {
-  const [adminProducts] = useState<AdminProduct[]>(() =>
-    typeof window === "undefined" ? [] : getAdminProducts(),
-  );
+  const hydrated = useHydrated();
+  const storefrontState = useStorefrontPublicState();
+  const settings = useDashboardSettingsLive();
+  const adminProducts: AdminProduct[] = storefrontState.products;
   const [selectedImage, setSelectedImage] = useState("");
   const [reviews, setReviews] = useState<ProductReview[]>(() => {
     if (typeof window === "undefined") {
@@ -50,9 +54,10 @@ export default function ProductDetailsView({ productId }: ProductDetailsViewProp
   const [reviewComment, setReviewComment] = useState("");
   const [reviewRating, setReviewRating] = useState("5");
   const [reviewMessage, setReviewMessage] = useState("");
-  const [currencySymbol] = useState(() => (typeof window === "undefined" ? "ر.س" : getDashboardSettings().currencySymbol));
+  const currencySymbol = hydrated ? settings.currencySymbol : "ر.س";
 
   const displayProduct = adminProducts.find((item) => item.id === productId) || null;
+  const visibleReviews = hydrated ? reviews : [...(DEFAULT_REVIEWS_BY_PRODUCT[productId] || [])];
 
   const gallery = useMemo(() => {
     const images = displayProduct?.imageGallery || [];
@@ -77,13 +82,13 @@ export default function ProductDetailsView({ productId }: ProductDetailsViewProp
   );
 
   const recentlyViewed = useMemo(() => {
-    if (!displayProduct) {
+    if (!hydrated || !displayProduct) {
       return [];
     }
 
     const ids = getRecentlyViewedProductIds();
     return adminProducts.filter((item) => ids.includes(item.id) && item.id !== displayProduct.id).slice(0, 4);
-  }, [adminProducts, displayProduct]);
+  }, [adminProducts, displayProduct, hydrated]);
 
   function handleReviewSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -193,7 +198,7 @@ export default function ProductDetailsView({ productId }: ProductDetailsViewProp
       <section className="product-detail-card mt-4">
         <h2>مراجعات العملاء</h2>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
-          {reviews.map((review) => (
+          {visibleReviews.map((review) => (
             <article key={review.id} className="rounded-2xl border border-zinc-200 bg-white p-4">
               <p className="text-sm font-black text-zinc-900">{review.author}</p>
               <p className="text-xs font-bold text-orange-700">{review.rating} / 5</p>

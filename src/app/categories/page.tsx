@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CATEGORY_LABELS, type ProductCategory } from "@/data/products";
-import { getAdminProducts } from "@/lib/admin-storage";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 const CATEGORY_SUMMARIES: Record<ProductCategory, { summary: string; subcategories: string[]; fallbackImage: string }> = {
   "skin-care": {
@@ -30,7 +30,8 @@ const CATEGORY_SUMMARIES: Record<ProductCategory, { summary: string; subcategori
 };
 
 export default function CategoriesPage() {
-  const [products] = useState(() => (typeof window === "undefined" ? [] : getAdminProducts()));
+  const storefrontState = useStorefrontPublicState();
+  const products = storefrontState.products;
   const categories = useMemo(
     () =>
       (Object.keys(CATEGORY_LABELS) as ProductCategory[]).map((categoryKey) => {

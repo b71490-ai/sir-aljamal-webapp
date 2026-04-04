@@ -2,7 +2,7 @@
 
 import AdsSlider from "@/components/ads-slider";
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import {
   buildDashboardInsights,
   getAdminLeads,
@@ -11,18 +11,11 @@ import {
 import { getActiveOffers } from "@/data/offers";
 import { getLoyaltyPoints } from "@/lib/storefront-storage";
 import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 function formatPrice(price: number, currencySymbol: string) {
   return `${price} ${currencySymbol}`;
-}
-
-function useHydrated() {
-  return useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
 }
 
 export default function Home() {
@@ -33,12 +26,14 @@ export default function Home() {
   const leads = useMemo(() => (hydrated ? getAdminLeads() : []), [hydrated]);
   const settings = useDashboardSettingsLive();
   const loyaltyPoints = useMemo(() => (hydrated ? getLoyaltyPoints() : 0), [hydrated]);
+  const currencySymbol = hydrated ? settings.currencySymbol : "ر.س";
+  const now = useMemo(() => (hydrated ? new Date() : null), [hydrated]);
 
   const insights = useMemo(
     () => buildDashboardInsights(products, orders, leads, settings),
     [products, orders, leads, settings],
   );
-  const activeOffers = useMemo(() => getActiveOffers(new Date(), storefrontState.offers), [storefrontState.offers]);
+  const activeOffers = useMemo(() => (now ? getActiveOffers(now, storefrontState.offers) : []), [now, storefrontState.offers]);
   const featuredProducts = useMemo(() => {
     const targetCategories = activeOffers
       .map((offer) => offer.rule.category)
@@ -132,7 +127,7 @@ export default function Home() {
             </div>
             <div className="hero-metric bg-orange-50/95">
               <p className="text-[11px] text-orange-900 sm:text-xs">قيمة المبيعات</p>
-              <p className="mt-1 text-base font-black text-zinc-900 sm:text-xl">{formatPrice(Math.round(insights.revenue), settings.currencySymbol)}</p>
+              <p className="mt-1 text-base font-black text-zinc-900 sm:text-xl">{formatPrice(Math.round(insights.revenue), currencySymbol)}</p>
               <Link className="metric-link" href="/offers">
                 شاهدي العروض
               </Link>
@@ -191,7 +186,7 @@ export default function Home() {
 
           <div className="hero-score-card animate-slide-up">
             <p className="hero-score-card__kicker">مؤشر الفخامة</p>
-            <p className="hero-score-card__score">{formatPrice(Number(insights.avgOrderValue.toFixed(0)), settings.currencySymbol)}</p>
+            <p className="hero-score-card__score">{formatPrice(Number(insights.avgOrderValue.toFixed(0)), currencySymbol)}</p>
             <p className="hero-score-card__desc">
               متوسط السلة الحالية يعكس القيمة الشرائية داخل المتجر بعد تحويله لهوية عطرية أكثر رقيًا.
             </p>
@@ -232,7 +227,7 @@ export default function Home() {
             <article key={product.id} className="feature-card feature-card--light">
               <p className="text-sm font-black text-zinc-900">{product.name}</p>
               <p className="mt-2 text-sm text-zinc-700">{product.shortDescription}</p>
-              <p className="mt-2 text-xs font-black text-orange-700">{formatPrice(product.price, settings.currencySymbol)}</p>
+              <p className="mt-2 text-xs font-black text-orange-700">{formatPrice(product.price, currencySymbol)}</p>
               <Link className="mini-link mt-4" href={`/store/${product.id}`}>
                 مشاهدة المنتج
               </Link>

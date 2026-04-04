@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getActiveOffers, getSecondsLeft } from "@/data/offers";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 
 type AdItem = {
@@ -28,11 +29,13 @@ function formatLeft(seconds: number) {
 }
 
 export default function AdsSlider() {
+  const hydrated = useHydrated();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [now, setNow] = useState(new Date());
   const touchStartX = useRef<number | null>(null);
   const storefrontState = useStorefrontPublicState();
+  const referenceDate = hydrated ? now : null;
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -40,19 +43,19 @@ export default function AdsSlider() {
   }, []);
 
   const ADS = useMemo<AdItem[]>(() => {
-    const offers = getActiveOffers(now, storefrontState.offers).slice(0, 3);
+    const offers = referenceDate ? getActiveOffers(referenceDate, storefrontState.offers).slice(0, 3) : [];
     return offers.map((offer, index) => ({
       id: offer.id,
       badge: offer.badge,
       title: offer.title,
       subtitle: offer.details,
       metaOne: offer.couponCode ? `كود ${offer.couponCode}` : "عرض بوتيك",
-      metaTwo: `ينتهي خلال ${formatLeft(getSecondsLeft(offer.expiresAt, now))}`,
+      metaTwo: referenceDate ? `ينتهي خلال ${formatLeft(getSecondsLeft(offer.expiresAt, referenceDate))}` : "ينتهي قريبًا",
       cta: "ادخلي إلى العرض",
       href: offer.href,
       tone: TONES[index % TONES.length],
     }));
-  }, [now, storefrontState.offers]);
+  }, [referenceDate, storefrontState.offers]);
 
   const lastIndex = ADS.length - 1;
   const boundedIndex = ADS.length === 0 ? 0 : Math.min(activeIndex, lastIndex);

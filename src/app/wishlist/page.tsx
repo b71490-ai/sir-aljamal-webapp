@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AddToCartButton from "@/components/add-to-cart-button";
 import WishlistToggle from "@/components/wishlist-toggle";
-import { getAdminProducts, getDashboardSettings, type AdminProduct } from "@/lib/admin-storage";
+import type { AdminProduct } from "@/lib/admin-storage";
+import { useHydrated } from "@/lib/use-hydrated";
+import { useStorefrontPublicState } from "@/lib/use-storefront-public-state";
 import {
   getRecentlyViewedProductIds,
   getStorefrontEventName,
@@ -17,8 +19,10 @@ function formatPrice(price: number, currencySymbol: string) {
 }
 
 export default function WishlistPage() {
-  const [products] = useState<AdminProduct[]>(() => (typeof window === "undefined" ? [] : getAdminProducts()));
-  const [currencySymbol] = useState(() => (typeof window === "undefined" ? "ر.س" : getDashboardSettings().currencySymbol));
+  const hydrated = useHydrated();
+  const storefrontState = useStorefrontPublicState();
+  const products: AdminProduct[] = storefrontState.products;
+  const currencySymbol = hydrated ? storefrontState.settings.currencySymbol : "ر.س";
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [recentIds, setRecentIds] = useState<string[]>([]);
 
@@ -34,17 +38,17 @@ export default function WishlistPage() {
   }, []);
 
   const wishlistProducts = useMemo(
-    () => wishlistIds.map((id) => products.find((product) => product.id === id)).filter((product): product is AdminProduct => Boolean(product)),
-    [products, wishlistIds],
+    () => (hydrated ? wishlistIds : []).map((id) => products.find((product) => product.id === id)).filter((product): product is AdminProduct => Boolean(product)),
+    [hydrated, products, wishlistIds],
   );
 
   const recentlyViewedProducts = useMemo(
-    () => recentIds
+    () => (hydrated ? recentIds : [])
       .map((id) => products.find((product) => product.id === id))
       .filter((product): product is AdminProduct => Boolean(product))
       .filter((product) => !wishlistIds.includes(product.id))
       .slice(0, 6),
-    [products, recentIds, wishlistIds],
+    [hydrated, products, recentIds, wishlistIds],
   );
 
   return (

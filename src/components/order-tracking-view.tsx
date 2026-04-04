@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { getDashboardSettings } from "@/lib/admin-storage";
 import { formatArabicDateWithEnglishDigits, normalizeToEnglishDigits } from "@/lib/digits";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
+import { useHydrated } from "@/lib/use-hydrated";
 
 const STATUS_LABELS: Record<string, string> = {
   new: "جديد",
@@ -29,6 +30,8 @@ function formatDate(value: string) {
 }
 
 export default function OrderTrackingView() {
+  const hydrated = useHydrated();
+  const settings = useDashboardSettingsLive();
   const [orderId, setOrderId] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +46,7 @@ export default function OrderTrackingView() {
     deliveryFee: number;
     total: number;
   } | null>(null);
-  const [currencySymbol] = useState(() => getDashboardSettings().currencySymbol);
+  const currencySymbol = hydrated ? settings.currencySymbol : "ر.س";
 
   async function handleLookup() {
     const normalized = normalizeToEnglishDigits(orderId).trim().toUpperCase();
