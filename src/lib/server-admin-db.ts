@@ -292,11 +292,6 @@ function defaultState(): ServerAdminState {
   };
 }
 
-async function ensureDbFile() {
-  const dbPath = resolveDbPath();
-  return ensureDbFileAtPath(dbPath);
-}
-
 async function ensureDbFileAtPath(dbPath: string) {
   const dbDir = resolveDbDir(dbPath);
 

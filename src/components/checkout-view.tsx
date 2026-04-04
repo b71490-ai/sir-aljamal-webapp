@@ -3,11 +3,12 @@
 import { useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { useCart } from "@/components/cart-provider";
-import { addAdminOrder, getAdminProductById, getDashboardSettings } from "@/lib/admin-storage";
+import { addAdminOrder, getAdminProductById } from "@/lib/admin-storage";
 import { calculateAutoOfferDiscount, findCouponOffer } from "@/data/offers";
 import { pushAdminStateToServer } from "@/lib/admin-sync";
 import { addLoyaltyPoints, getCustomerProfile, saveCustomerProfile, type CustomerAddress } from "@/lib/storefront-storage";
 import { normalizeToEnglishDigits } from "@/lib/digits";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
 
 function formatPrice(price: number, currencySymbol: string) {
   return `${price} ${currencySymbol}`;
@@ -64,13 +65,17 @@ export default function CheckoutView() {
   const [paymentReceiptImage, setPaymentReceiptImage] = useState("");
   const [formError, setFormError] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
-  const [settings] = useState(() => getDashboardSettings());
-  const [whatsappNumber] = useState(() => getDashboardSettings().whatsappNumber);
+  const settings = useDashboardSettingsLive();
+  const whatsappNumber = settings.whatsappNumber;
 
   const availablePaymentMethods = settings.paymentMethods.filter((method) => method.isEnabled);
   const [paymentMethodId, setPaymentMethodId] = useState(() => availablePaymentMethods[0]?.id || "");
   const [payerName, setPayerName] = useState(initialProfile.name);
-  const selectedPaymentMethod = availablePaymentMethods.find((method) => method.id === paymentMethodId) || availablePaymentMethods[0] || null;
+  const effectivePaymentMethodId =
+    availablePaymentMethods.some((method) => method.id === paymentMethodId)
+      ? paymentMethodId
+      : (availablePaymentMethods[0]?.id || "");
+  const selectedPaymentMethod = availablePaymentMethods.find((method) => method.id === effectivePaymentMethodId) || null;
   const currencySymbol = settings.currencySymbol;
 
   function applySavedAddress(addressId: string) {
@@ -393,7 +398,7 @@ export default function CheckoutView() {
                   </option>
                 ))}
               </select>
-              <select className="form-input" value={paymentMethodId} onChange={(event) => setPaymentMethodId(event.target.value)}>
+              <select className="form-input" value={effectivePaymentMethodId} onChange={(event) => setPaymentMethodId(event.target.value)}>
                 {availablePaymentMethods.map((method) => (
                   <option key={method.id} value={method.id}>
                     {method.name} - {method.accountNumber}

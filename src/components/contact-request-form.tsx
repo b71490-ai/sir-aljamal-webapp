@@ -1,10 +1,11 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import { addAdminLead, getDashboardSettings } from "@/lib/admin-storage";
+import { addAdminLead } from "@/lib/admin-storage";
 import { pushAdminStateToServer } from "@/lib/admin-sync";
 import { getCustomerProfile, saveCustomerProfile } from "@/lib/storefront-storage";
 import { normalizeToEnglishDigits } from "@/lib/digits";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
 
 type ContactRequestFormProps = {
   selectedProductName?: string;
@@ -36,7 +37,8 @@ export default function ContactRequestForm({ selectedProductName }: ContactReque
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [whatsappNumber] = useState(() => getDashboardSettings().whatsappNumber);
+  const settings = useDashboardSettingsLive();
+  const whatsappNumber = settings.whatsappNumber;
 
   const waBaseUrl = useMemo(() => `https://wa.me/${whatsappNumber}`, [whatsappNumber]);
 
