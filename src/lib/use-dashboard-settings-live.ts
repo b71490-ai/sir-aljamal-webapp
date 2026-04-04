@@ -21,8 +21,11 @@ const FALLBACK_SETTINGS: DashboardSettings = {
   paymentMethods: [],
 };
 
-export function useDashboardSettingsLive() {
-  const [settings, setSettings] = useState<DashboardSettings>(FALLBACK_SETTINGS);
+export function useDashboardSettingsLive(initialSettings?: Partial<DashboardSettings>) {
+  const [settings, setSettings] = useState<DashboardSettings>({
+    ...FALLBACK_SETTINGS,
+    ...initialSettings,
+  });
 
   useEffect(() => {
     const sync = () => {
