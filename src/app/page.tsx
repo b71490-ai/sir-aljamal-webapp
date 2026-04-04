@@ -2,53 +2,41 @@
 
 import AdsSlider from "@/components/ads-slider";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import {
   buildDashboardInsights,
   getAdminLeads,
   getAdminOrders,
   getAdminProducts,
-  getDashboardSettings,
 } from "@/lib/admin-storage";
 import { getActiveOffers } from "@/data/offers";
 import { PRODUCTS } from "@/data/products";
 import { getLoyaltyPoints } from "@/lib/storefront-storage";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
 
 function formatPrice(price: number, currencySymbol: string) {
   return `${price} ${currencySymbol}`;
 }
 
+function useHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
 export default function Home() {
-  const [products] = useState(() =>
-    typeof window === "undefined"
-      ? PRODUCTS.map((item) => ({ ...item, stock: 10, sales: 0, isActive: true, sku: "", updatedAt: "" }))
-      : getAdminProducts(),
+  const hydrated = useHydrated();
+  const fallbackProducts = useMemo(
+    () => PRODUCTS.map((item) => ({ ...item, stock: 10, sales: 0, isActive: true, sku: "", updatedAt: "" })),
+    [],
   );
-  const [orders] = useState<ReturnType<typeof getAdminOrders>>(() =>
-    typeof window === "undefined" ? [] : getAdminOrders(),
-  );
-  const [leads] = useState<ReturnType<typeof getAdminLeads>>(() =>
-    typeof window === "undefined" ? [] : getAdminLeads(),
-  );
-  const [settings] = useState(() =>
-    typeof window === "undefined"
-      ? {
-          whatsappNumber: "966500000000",
-          supportEmail: "support@siraljamal.sa",
-          footerContactTitle: "أتيلية العطر",
-          workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
-          currencyCode: "SAR" as const,
-          currencySymbol: "ر.س",
-          lowStockThreshold: 8,
-          smartMode: true,
-          adminPin: "1234",
-          walletName: "المحفظة الرئيسية",
-          walletAccountNumber: "777123456",
-          paymentMethods: [],
-        }
-      : getDashboardSettings(),
-  );
-  const [loyaltyPoints] = useState(() => (typeof window === "undefined" ? 0 : getLoyaltyPoints()));
+  const products = useMemo(() => (hydrated ? getAdminProducts() : fallbackProducts), [hydrated, fallbackProducts]);
+  const orders = useMemo(() => (hydrated ? getAdminOrders() : []), [hydrated]);
+  const leads = useMemo(() => (hydrated ? getAdminLeads() : []), [hydrated]);
+  const settings = useDashboardSettingsLive();
+  const loyaltyPoints = useMemo(() => (hydrated ? getLoyaltyPoints() : 0), [hydrated]);
 
   const insights = useMemo(
     () => buildDashboardInsights(products, orders, leads, settings),

@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { getAdminOrders, getDashboardSettings } from "@/lib/admin-storage";
+import { getAdminOrders } from "@/lib/admin-storage";
 import { normalizeToEnglishDigits } from "@/lib/digits";
+import { useDashboardSettingsLive } from "@/lib/use-dashboard-settings-live";
 
 export default function PoliciesPage() {
   const [orderId, setOrderId] = useState("");
   const [orderResult, setOrderResult] = useState<{ status: string; total: number } | null>(null);
   const [lookupError, setLookupError] = useState("");
-  const [currencySymbol] = useState(() => getDashboardSettings().currencySymbol);
+  const settings = useDashboardSettingsLive();
+  const currencySymbol = settings.currencySymbol;
+  const whatsappNumber = settings.whatsappNumber;
+  const supportEmail = settings.supportEmail;
 
   function handleLookup() {
     const normalized = normalizeToEnglishDigits(orderId).trim().toUpperCase();
@@ -115,10 +119,10 @@ export default function PoliciesPage() {
       </section>
 
       <div className="inner-page__actions">
-        <a className="hero-btn hero-btn--primary" href="https://wa.me/966500000000" target="_blank" rel="noreferrer">
+        <a className="hero-btn hero-btn--primary" href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noreferrer">
           استفسار عن الطلب
         </a>
-        <a className="hero-btn hero-btn--secondary" href="mailto:support@siraljamal.sa">
+        <a className="hero-btn hero-btn--secondary" href={`mailto:${supportEmail}`}>
           تواصل بالبريد
         </a>
         <Link className="hero-btn hero-btn--secondary" href="/store">

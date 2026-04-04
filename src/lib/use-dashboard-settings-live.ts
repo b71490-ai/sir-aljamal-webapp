@@ -6,13 +6,30 @@ import { getDashboardSettings, type DashboardSettings } from "@/lib/admin-storag
 const STORAGE_KEY = "sir-aljamal-admin-settings";
 const SETTINGS_UPDATED_EVENT = "sir-admin-settings-updated";
 
+const FALLBACK_SETTINGS: DashboardSettings = {
+  whatsappNumber: "966500000000",
+  supportEmail: "support@siraljamal.sa",
+  footerContactTitle: "أتيلية العطر",
+  workingHoursLabel: "يوميًا من 10 صباحًا حتى 11 مساءً",
+  currencyCode: "SAR",
+  currencySymbol: "ر.س",
+  lowStockThreshold: 8,
+  smartMode: true,
+  adminPin: "1234",
+  walletName: "المحفظة الرئيسية",
+  walletAccountNumber: "777123456",
+  paymentMethods: [],
+};
+
 export function useDashboardSettingsLive() {
-  const [settings, setSettings] = useState<DashboardSettings>(() => getDashboardSettings());
+  const [settings, setSettings] = useState<DashboardSettings>(FALLBACK_SETTINGS);
 
   useEffect(() => {
     const sync = () => {
       setSettings(getDashboardSettings());
     };
+
+    sync();
 
     const onStorage = (event: StorageEvent) => {
       if (event.key && event.key !== STORAGE_KEY) {
